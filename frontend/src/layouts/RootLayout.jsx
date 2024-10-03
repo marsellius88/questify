@@ -20,9 +20,9 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
 import HomeIcon from "@mui/icons-material/Home";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import ChecklistIcon from "@mui/icons-material/Checklist";
-import TextSnippetIcon from "@mui/icons-material/TextSnippet";
+import LocalMallIcon from '@mui/icons-material/LocalMall';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 import { sideBarMenuItems } from "../../utils/SideBaraMenuItems";
 
@@ -190,9 +190,9 @@ export default function MiniDrawer() {
                   ]}
                 >
                   {item.text === "Home" && <HomeIcon />}
-                  {item.text === "Expense" && <TableChartIcon />}
-                  {item.text === "Todo" && <ChecklistIcon />}
-                  {item.text === "Journal" && <TextSnippetIcon />}
+                  {item.text === "Expense" && <LocalMallIcon />}
+                  {item.text === "Todo" && <FactCheckIcon />}
+                  {item.text === "Journal" && <DescriptionIcon />}
                 </ListItemIcon>
                 <ListItemText
                   primary={item.text}
