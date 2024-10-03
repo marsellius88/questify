@@ -1,0 +1,1 @@
+export const sideBarMenuItems = ["Pengeluaran", "Todo", "Jurnal"]
