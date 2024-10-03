@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
@@ -18,8 +18,11 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+
+import HomeIcon from "@mui/icons-material/Home";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import ChecklistIcon from "@mui/icons-material/Checklist";
+import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 
 import { sideBarMenuItems } from "../../utils/SideBaraMenuItems";
 
@@ -51,7 +54,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
@@ -135,7 +137,9 @@ export default function MiniDrawer() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Questify
+            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+              Questify
+            </Link>
           </Typography>
         </Toolbar>
       </AppBar>
@@ -151,9 +155,11 @@ export default function MiniDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          {sideBarMenuItems.map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+          {sideBarMenuItems.map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: "block" }}>
               <ListItemButton
+                component={Link}
+                to={item.path}
                 sx={[
                   {
                     minHeight: 48,
@@ -183,10 +189,13 @@ export default function MiniDrawer() {
                         },
                   ]}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {item.text === "Home" && <HomeIcon />}
+                  {item.text === "Expense" && <TableChartIcon />}
+                  {item.text === "Todo" && <ChecklistIcon />}
+                  {item.text === "Journal" && <TextSnippetIcon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={text}
+                  primary={item.text}
                   sx={[
                     open
                       ? {

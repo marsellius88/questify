@@ -17,6 +17,24 @@ const theme = createTheme({
       variants: [
         {
           props: {
+            variant: "h1",
+          },
+          style: {
+            fontSize: 40,
+            fontWeight: "bold",
+          },
+        },
+        {
+          props: {
+            variant: "h2",
+          },
+          style: {
+            fontSize: 24,
+            fontWeight: "bold",
+          },
+        },
+        {
+          props: {
             variant: "body2",
           },
           style: {
