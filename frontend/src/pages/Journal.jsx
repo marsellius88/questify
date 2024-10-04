@@ -2,8 +2,8 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 
-
 import SelectedMonthYear from "../components/SelectMonthYear";
+import JournalTable from "../components/Journal/JournalTable";
 
 export default function Journal() {
   return (
@@ -21,7 +21,7 @@ export default function Journal() {
       <Divider />
       <Box sx={{ marginTop: 2.5 }}>
         <SelectedMonthYear />
-
+        <JournalTable />
       </Box>
     </Box>
   );
