@@ -21,10 +21,15 @@ const months = [
   "November",
   "December",
 ];
-export default function SelectedMonthYear() {
+export default function SelectedMonthYear({
+  selectedMonth,
+  setSelectedMonth,
+  selectedYear,
+  setSelectedYear,
+}) {
   const today = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  // const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  // const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);

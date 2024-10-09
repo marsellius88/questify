@@ -18,23 +18,21 @@ import Switch from "@mui/material/Switch";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { visuallyHidden } from "@mui/utils";
+import Checkbox from "@mui/material/Checkbox";
 
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import ExpenseModal from "./ExpenseModal";
+import TodoModal from "./TodoModal";
 
 import { data } from "../../Data";
 
-function createData(id, date, expense) {
-  const dailyTotal = expense.reduce(
-    (total, item) => total + item.price * item.amount,
-    0
-  );
+function createData(id, date, todo) {
   return {
     id,
     date,
-    dailyTotal,
-    expense: expense,
+    todo: todo,
   };
 }
 
@@ -45,8 +43,17 @@ const handleDeleteRow = () => {
 function Row(props) {
   const { row, index } = props;
   const [open, setOpen] = React.useState(false);
+  const [todos, setTodos] = React.useState(row.todo);
 
   const labelId = `enhanced-table-checkbox-${index}`;
+
+  const handleCheckboxChange = (todoIndex) => {
+    setTodos((prevTodos) => {
+      const updatedTodos = [...prevTodos];
+      updatedTodos[todoIndex].done = !updatedTodos[todoIndex].done;
+      return updatedTodos;
+    });
+  };
 
   return (
     <React.Fragment>
@@ -68,44 +75,52 @@ function Row(props) {
           })}
         </TableCell>
         <TableCell align="right">
-          {row.dailyTotal.toLocaleString("id-ID")}
+          {`${row.todo.filter((item) => item.done).length}/${row.todo.length}`}
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              {/* <Typography variant="h6" gutterBottom component="div">
-                {row.name}
-              </Typography> */}
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Platform</TableCell>
-                    <TableCell>Payment</TableCell>
-                    <TableCell align="right">Price (Rp)</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Total price (Rp)</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Due Date</TableCell>
+                    <TableCell>Note</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.expense.map((expenseRow) => (
-                    <TableRow key={expenseRow.name}>
+                  {row.todo.map((todoRow, todoIndex) => (
+                    <TableRow key={todoRow.title}>
+                      <TableCell>
+                        <Checkbox
+                          icon={<RadioButtonUncheckedIcon />}
+                          checkedIcon={<RadioButtonCheckedIcon />}
+                          checked={todoRow.done}
+                          onChange={() => handleCheckboxChange(todoIndex)}
+                        />
+                      </TableCell>
                       <TableCell component="th" scope="row">
-                        {expenseRow.name}
+                        {todoRow.title}
                       </TableCell>
-                      <TableCell>{expenseRow.platform}</TableCell>
-                      <TableCell>{expenseRow.payment}</TableCell>
-                      <TableCell align="right">
-                        {expenseRow.price.toLocaleString("id-ID")}
+                      <TableCell>
+                        {todoRow.due
+                          ? todoRow.due.toLocaleDateString("id-ID", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            })
+                          : "-"}
                       </TableCell>
-                      <TableCell align="right">{expenseRow.amount}</TableCell>
-                      <TableCell align="right">
-                        {(expenseRow.amount * expenseRow.price).toLocaleString(
-                          "id-ID"
-                        )}
+                      <TableCell>
+                        {todoRow.note
+                          ? todoRow.note.length > 20
+                            ? `${todoRow.note.substring(0, 20)}...`
+                            : todoRow.note
+                          : "-"}
                       </TableCell>
                       <TableCell>
                         <IconButton
@@ -120,7 +135,7 @@ function Row(props) {
                   ))}
                   <TableRow>
                     <TableCell>
-                      <ExpenseModal row={row} />
+                      <TodoModal row={row} />
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -133,21 +148,18 @@ function Row(props) {
   );
 }
 
-Row.propTypes = {
-  row: PropTypes.shape({
-    date: PropTypes.instanceOf(Date).isRequired,
-    dailyTotal: PropTypes.number.isRequired,
-    expense: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        platform: PropTypes.string.isRequired,
-        payment: PropTypes.string.isRequired,
-        price: PropTypes.number.isRequired,
-        amount: PropTypes.number.isRequired,
-      })
-    ).isRequired,
-  }).isRequired,
-};
+// Row.propTypes = {
+//   row: PropTypes.shape({
+//     date: PropTypes.instanceOf(Date).isRequired,
+//     todo: PropTypes.arrayOf(
+//       PropTypes.shape({
+//         title: PropTypes.string.isRequired,
+//         due: PropTypes.instanceOf(Date),
+//         note: PropTypes.string,
+//       })
+//     ).isRequired,
+//   }).isRequired,
+// };
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -173,10 +185,10 @@ const headCells = [
     label: "Date",
   },
   {
-    id: "total-expense",
+    id: "todo-progress",
     numeric: true,
     disablePadding: false,
-    label: "Daily Total (Rp)",
+    label: "Progress",
   },
 ];
 
@@ -222,19 +234,18 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function ExpenseTable({ selectedMonth, selectedYear }) {
+export default function TodoTable({ selectedMonth, selectedYear }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
 
   const rows = data
-  .filter((item) => {
-    const month = item.date.getMonth();
-    const year = item.date.getFullYear();
-    // return month === 9 && year === 2024;
-    return month === selectedMonth && year === selectedYear;
-  })
-  .map((item, index) => createData(index + 1, item.date, item.expense));
+    .filter((item) => {
+      const month = item.date.getMonth();
+      const year = item.date.getFullYear();
+      return month === selectedMonth && year === selectedYear;
+    })
+    .map((item, index) => createData(index + 1, item.date, item.todo));
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";

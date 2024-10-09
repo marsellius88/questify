@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
@@ -6,6 +7,10 @@ import SelectedMonthYear from "../components/SelectMonthYear";
 import JournalTable from "../components/Journal/JournalTable";
 
 export default function Journal() {
+  const today = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+
   return (
     <Box>
       <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
@@ -20,8 +25,16 @@ export default function Journal() {
       </Typography>
       <Divider />
       <Box sx={{ marginTop: 2.5 }}>
-        <SelectedMonthYear />
-        <JournalTable />
+        <SelectedMonthYear
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+        />
+        <JournalTable
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+        />
       </Box>
     </Box>
   );

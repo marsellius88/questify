@@ -19,22 +19,49 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { visuallyHidden } from "@mui/utils";
 import TodoProgress from "./TodoProgress";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
+import JournalModal from "./JournalModal";
 
-function createData(id, date, dailyTotal, todo, mood, action) {
+import { data } from "../../Data";
+
+function createData(id, date, expense, todo, journal) {
+  const dailyTotal = expense.reduce(
+    (total, item) => total + item.price * item.amount,
+    0
+  );
+  // Menghitung persentase progress todo
+  const completedTodos = todo.filter((item) => item.done).length;
+  const totalTodos = todo.length;
+  const todoPercentage =
+    totalTodos > 0 ? (completedTodos * 100) / totalTodos : 0;
+  // Menentukan icon mood
+  let moodIcon;
+  switch (journal.mood) {
+    case "happy":
+      moodIcon = "😊";
+      break;
+    case "neutral":
+      moodIcon = "😐";
+      break;
+    case "sad":
+      moodIcon = "😢";
+      break;
+    default:
+      moodIcon = "-";
+  }
   return {
     id,
     date,
     dailyTotal,
-    todo,
-    mood,
-    action,
+    todoPercentage,
+    todo: todo,
+    mood: moodIcon,
+    journal: journal,
   };
 }
 
 function Row(props) {
   const { row, index } = props;
-  //   const [open, setOpen] = React.useState(false);
 
   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -42,46 +69,26 @@ function Row(props) {
     <React.Fragment>
       <TableRow hover tabIndex={-1} key={row.id}>
         <TableCell component="th" id={labelId} scope="row">
-          {row.date}
+          {row.date.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })}
         </TableCell>
         <TableCell align="right">
           {row.dailyTotal.toLocaleString("id-ID")}
         </TableCell>
         <TableCell>
-          <TodoProgress progress={row.todo} />
+          <TodoProgress progress={row.todoPercentage} />
         </TableCell>
         <TableCell>{row.mood}</TableCell>
-        <TableCell>
-          <IconButton
-            aria-label="edit row"
-            size="small"
-            // onClick={() => setOpen(!open)}
-          >
-            {<EditIcon />}
-          </IconButton>
+        <TableCell align="right">
+          <JournalModal row={row} />
         </TableCell>
       </TableRow>
     </React.Fragment>
   );
 }
-
-Row.propTypes = {
-  row: PropTypes.shape({
-    date: PropTypes.string.isRequired,
-    dailyTotal: PropTypes.number.isRequired,
-    todo: PropTypes.number.isRequired,
-    mood: PropTypes.string.isRequired,
-    action: PropTypes.string.isRequired,
-  }).isRequired,
-};
-
-const rows = [
-  createData(1, "01-10-2024", 10000, 10, "🙂", "edit"),
-  createData(2, "02-10-2024", 20000, 30, "🙂", "edit"),
-  createData(3, "03-10-2024", 50000, 80, "🙂", "edit"),
-  createData(4, "04-10-2024", 30000, 100, "🙂", "edit"),
-  createData(5, "05-10-2024", 100000, 50, "🙂", "edit"),
-];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -103,7 +110,7 @@ const headCells = [
   {
     id: "date",
     numeric: false,
-    disablePadding: true,
+    disablePadding: false,
     label: "Date",
   },
   {
@@ -123,12 +130,6 @@ const headCells = [
     numeric: false,
     disablePadding: true,
     label: "Mood",
-  },
-  {
-    id: "action",
-    numeric: false,
-    disablePadding: true,
-    label: "Action",
   },
 ];
 
@@ -162,6 +163,7 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell></TableCell>
       </TableRow>
     </TableHead>
   );
@@ -173,10 +175,20 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function JournalTable() {
+export default function JournalTable({ selectedMonth, selectedYear }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
+
+  const rows = data
+    .filter((item) => {
+      const month = item.date.getMonth();
+      const year = item.date.getFullYear();
+      return month === selectedMonth && year === selectedYear;
+    })
+    .map((item, index) =>
+      createData(index + 1, item.date, item.expense, item.todo, item.journal)
+    );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
