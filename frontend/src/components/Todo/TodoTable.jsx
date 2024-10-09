@@ -85,11 +85,11 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell></TableCell>
-                    <TableCell>Title</TableCell>
-                    <TableCell>Due Date</TableCell>
-                    <TableCell>Note</TableCell>
-                    <TableCell></TableCell>
+                    <TableCell sx={{ width: "5%" }}></TableCell>
+                    <TableCell sx={{ width: "30%" }}>Title</TableCell>
+                    <TableCell sx={{ width: "20%" }}>Due Date</TableCell>
+                    <TableCell sx={{ width: "40%" }}>Note</TableCell>
+                    <TableCell sx={{ width: "5%" }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -134,7 +134,7 @@ function Row(props) {
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell>
+                    <TableCell colSpan={5}>
                       <TodoModal row={row} />
                     </TableCell>
                   </TableRow>
@@ -201,7 +201,7 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell />
+        <TableCell sx={{ width: "5%" }}></TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}

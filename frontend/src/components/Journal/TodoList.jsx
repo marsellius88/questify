@@ -23,7 +23,7 @@ export default function TodoList({ row }) {
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open todo</Button>
+      <Button onClick={handleOpen}>View Todo</Button>
       <Modal
         open={open}
         onClose={handleClose}

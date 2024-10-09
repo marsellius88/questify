@@ -1,10 +1,13 @@
 import { Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+
+import Calendar from "../components/Home/Calendar";
 
 export default function Home() {
   return (
     <Box>
-      <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
+      {/* <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
         Home
       </Typography>
       <Typography variant="body1" component="p">
@@ -76,7 +79,19 @@ export default function Home() {
         officiis sapiente ratione, doloribus sunt. Pariatur, commodi laudantium
         beatae deleniti nihil quam aut doloribus cumque mollitia in vero
         expedita perspiciatis excepturi.
+      </Typography> */}
+      <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
+        Home
       </Typography>
+      <Typography variant="body1" component="p" sx={{ marginBottom: 2.5 }}>
+        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque,
+        voluptatem aperiam odio cum cumque, quaerat reiciendis impedit eos neque
+        officiis sapiente ratione, doloribus sunt. Pariatur, commodi laudantium
+        beatae deleniti nihil quam aut doloribus cumque mollitia in vero
+        expedita perspiciatis excepturi.
+      </Typography>
+      <Divider />
+      <Calendar />
     </Box>
   );
 }

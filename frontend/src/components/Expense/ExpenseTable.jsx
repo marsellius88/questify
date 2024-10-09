@@ -81,13 +81,19 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Platform</TableCell>
-                    <TableCell>Payment</TableCell>
-                    <TableCell align="right">Price (Rp)</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Total price (Rp)</TableCell>
-                    <TableCell></TableCell>
+                    <TableCell sx={{ width: "20%" }}>Item Name</TableCell>
+                    <TableCell sx={{ width: "20%" }}>Platform</TableCell>
+                    <TableCell sx={{ width: "20%" }}>Payment</TableCell>
+                    <TableCell sx={{ width: "15%" }} align="right">
+                      Price (Rp)
+                    </TableCell>
+                    <TableCell sx={{ width: "10%" }} align="right">
+                      Amount
+                    </TableCell>
+                    <TableCell sx={{ width: "15%" }} align="right">
+                      Total price (Rp)
+                    </TableCell>
+                    <TableCell sx={{ width: "5%" }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -119,7 +125,7 @@ function Row(props) {
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell>
+                    <TableCell colSpan={7}>
                       <ExpenseModal row={row} />
                     </TableCell>
                   </TableRow>
@@ -189,7 +195,7 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell />
+        <TableCell sx={{ width: "5%" }}></TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -228,13 +234,13 @@ export default function ExpenseTable({ selectedMonth, selectedYear }) {
   const [dense, setDense] = React.useState(false);
 
   const rows = data
-  .filter((item) => {
-    const month = item.date.getMonth();
-    const year = item.date.getFullYear();
-    // return month === 9 && year === 2024;
-    return month === selectedMonth && year === selectedYear;
-  })
-  .map((item, index) => createData(index + 1, item.date, item.expense));
+    .filter((item) => {
+      const month = item.date.getMonth();
+      const year = item.date.getFullYear();
+      // return month === 9 && year === 2024;
+      return month === selectedMonth && year === selectedYear;
+    })
+    .map((item, index) => createData(index + 1, item.date, item.expense));
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
