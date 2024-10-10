@@ -139,22 +139,6 @@ function Row(props) {
   );
 }
 
-Row.propTypes = {
-  row: PropTypes.shape({
-    date: PropTypes.instanceOf(Date).isRequired,
-    dailyTotal: PropTypes.number.isRequired,
-    expense: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        platform: PropTypes.string.isRequired,
-        payment: PropTypes.string.isRequired,
-        price: PropTypes.number.isRequired,
-        amount: PropTypes.number.isRequired,
-      })
-    ).isRequired,
-  }).isRequired,
-};
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;

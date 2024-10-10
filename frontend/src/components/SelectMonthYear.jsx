@@ -95,7 +95,7 @@ export default function SelectedMonthYear({
         onClick={handleReset}
         sx={{ marginLeft: 2 }}
       >
-        Reset
+        Today
       </Button>
     </Box>
   );
