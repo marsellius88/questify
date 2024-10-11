@@ -85,4 +85,40 @@ export const data = [
       waterIntake: 2,
     },
   },
+  {
+    date: new Date(2024, 9, 10),
+    expense: [
+      {
+        name: "Nasi Dada",
+        platform: "Olive Fried Chicken",
+        payment: "BCA",
+        price: 15000,
+        amount: 4,
+      },
+    ],
+    todo: [
+      {
+        title: "Tugas 1",
+        due: new Date(2024, 9, 10),
+        note: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis quis iste commodi voluptas aliquam aspernatur. Atque mollitia iusto itaque exercitationem, laudantium possimus dicta quod natus libero iste vitae consequatur perferendis harum minus nisi minima eligendi ullam soluta expedita earum aut.",
+        priority: true,
+        done: true,
+      },
+      {
+        title: "Tugas 2",
+        due: "",
+        note: "Note tugas 2",
+        priority: false,
+        done: false,
+      },
+    ],
+    journal: {
+      grateful: "aa",
+      highlights: "xxx",
+      mood: "sad",
+      sleepDuration: 8,
+      thoughts: "aaa",
+      waterIntake: 2,
+    },
+  },
 ];

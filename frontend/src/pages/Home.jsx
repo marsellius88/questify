@@ -25,7 +25,23 @@ export default function Home() {
           />
           <ResetTodayButton setSelectedValue={setSelectedDate} />
         </Box>
-        <Box sx={{ width: "100%", height: "80vh", overflowY: "scroll" }}>
+        <Box
+          sx={{
+            width: "100%",
+            height: "80vh",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: "8px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bdc1c6",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#888",
+            },
+          }}
+        >
           <Typography
             variant="h2"
             component="h2"
