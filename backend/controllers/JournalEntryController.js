@@ -1,88 +1,70 @@
-// controllers/JournalEntryController.js
-const JournalEntry = require('../models/JournalEntry');
-const DailyRecord = require('../models/DailyRecords');
+// JournalEntryController.js
 
-// Create JournalEntry
+const JournalEntry = require("../models/JournalEntry");
+
+// Create a new journal entry
 exports.createJournalEntry = async (req, res) => {
   try {
     const { dailyRecordId, grateful, highlights, mood, sleepDuration, thoughts, waterIntake } = req.body;
-
-    // Check if DailyRecord exists
-    const dailyRecord = await DailyRecord.findById(dailyRecordId);
-    if (!dailyRecord) {
-      return res.status(404).json({ message: 'DailyRecord not found' });
-    }
-
-    const journalEntry = new JournalEntry({ dailyRecordId, grateful, highlights, mood, sleepDuration, thoughts, waterIntake });
-    const savedJournalEntry = await journalEntry.save();
-
-    // Link journal entry to DailyRecord's journalId
-    dailyRecord.journalId = savedJournalEntry._id;
-    await dailyRecord.save();
-
-    res.status(201).json(savedJournalEntry);
+    const journalEntry = new JournalEntry({
+      dailyRecordId,
+      grateful,
+      highlights,
+      mood,
+      sleepDuration,
+      thoughts,
+      waterIntake
+    });
+    await journalEntry.save();
+    res.status(201).json(journalEntry);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Get All JournalEntries
-exports.getAllJournalEntries = async (req, res) => {
+// Get all journal entries
+exports.getJournalEntries = async (req, res) => {
   try {
-    const journalEntries = await JournalEntry.find().populate('dailyRecordId');
+    const journalEntries = await JournalEntry.find().populate("dailyRecordId");
     res.status(200).json(journalEntries);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get Single JournalEntry by ID
+// Get a single journal entry by ID
 exports.getJournalEntryById = async (req, res) => {
   try {
-    const journalEntry = await JournalEntry.findById(req.params.id).populate('dailyRecordId');
-    if (!journalEntry) return res.status(404).json({ message: 'JournalEntry not found' });
+    const journalEntry = await JournalEntry.findById(req.params.id).populate("dailyRecordId");
+    if (!journalEntry) return res.status(404).json({ message: "Journal entry not found" });
     res.status(200).json(journalEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update JournalEntry
+// Update a journal entry by ID
 exports.updateJournalEntry = async (req, res) => {
   try {
     const { dailyRecordId, grateful, highlights, mood, sleepDuration, thoughts, waterIntake } = req.body;
-
-    // Check if DailyRecord exists
-    const dailyRecord = await DailyRecord.findById(dailyRecordId);
-    if (!dailyRecord) {
-      return res.status(404).json({ message: 'DailyRecord not found' });
-    }
-
-    const updatedJournalEntry = await JournalEntry.findByIdAndUpdate(
+    const journalEntry = await JournalEntry.findByIdAndUpdate(
       req.params.id,
       { dailyRecordId, grateful, highlights, mood, sleepDuration, thoughts, waterIntake },
       { new: true }
     );
-    if (!updatedJournalEntry) return res.status(404).json({ message: 'JournalEntry not found' });
-
-    res.status(200).json(updatedJournalEntry);
+    if (!journalEntry) return res.status(404).json({ message: "Journal entry not found" });
+    res.status(200).json(journalEntry);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Delete JournalEntry
+// Delete a journal entry by ID
 exports.deleteJournalEntry = async (req, res) => {
   try {
-    const deletedJournalEntry = await JournalEntry.findByIdAndDelete(req.params.id);
-    if (!deletedJournalEntry) return res.status(404).json({ message: 'JournalEntry not found' });
-
-    // Remove the journal entry reference from DailyRecord's journalId
-    await DailyRecord.findByIdAndUpdate(deletedJournalEntry.dailyRecordId, {
-      $unset: { journalId: '' }
-    });
-
-    res.status(200).json({ message: 'JournalEntry deleted successfully' });
+    const journalEntry = await JournalEntry.findByIdAndDelete(req.params.id);
+    if (!journalEntry) return res.status(404).json({ message: "Journal entry not found" });
+    res.status(200).json({ message: "Journal entry deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

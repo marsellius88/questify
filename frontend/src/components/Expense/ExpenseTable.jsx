@@ -212,7 +212,7 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function ExpenseTable({ selectedMonth, selectedYear }) {
+export default function ExpenseTable({ selectedMonth, selectedYear, monthlyData }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
