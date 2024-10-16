@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -9,9 +10,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DateInput from "./DateInput";
 import dayjs from "dayjs";
 
-export default function TodoModal({ row }) {
+export default function TodoModal({ row, handleAddTodo }) {
   const [open, setOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(null);
+  const dailyRecordId = row._id;
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -22,6 +24,26 @@ export default function TodoModal({ row }) {
     setSelectedDate(null);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const dueDate = selectedDate ? new Date(selectedDate).toString() : null;
+    const formData = {
+      dailyRecordId,
+      title: event.target.title.value,
+      due: dueDate,
+      priority: false,
+      done: false
+    };
+    try {
+      const response = await axios.post("/api/todos", formData);
+      console.log("Todo added successfully:", response.data);
+      handleAddTodo(response.data);
+      handleClose();
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  };
+
   return (
     <React.Fragment>
       <Button onClick={handleClickOpen}>Add Todo</Button>
@@ -30,16 +52,7 @@ export default function TodoModal({ row }) {
         onClose={handleClose}
         PaperProps={{
           component: "form",
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            formData.append("due", selectedDate);
-            // formData.append("sleepDuration", sleepDuration);
-            // formData.append("mood", mood);
-            const formJson = Object.fromEntries(formData.entries());
-            console.log(formJson);
-            handleClose();
-          },
+          onSubmit: handleSubmit,
         }}
       >
         <DialogTitle>{`${row.date.toLocaleDateString("en-GB", {

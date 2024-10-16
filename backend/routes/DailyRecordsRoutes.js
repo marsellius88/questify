@@ -10,6 +10,9 @@ router.post("/", DailyRecordsController.createDailyRecord);
 // Get all daily records
 router.get("/", DailyRecordsController.getDailyRecords);
 
+// Get a single daily record by date
+router.get("/date/:date", DailyRecordsController.getDailyRecordByDate);
+
 // Get a single daily record by monthlyRecordId
 router.get("/monthly-record/:monthlyRecordId", DailyRecordsController.getDailyRecordByMonthlyRecordId);
 

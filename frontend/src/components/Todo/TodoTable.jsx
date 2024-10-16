@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -26,33 +27,46 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import TodoModal from "./TodoModal";
 
-import { data } from "../../Data";
-
-function createData(id, date, todo) {
+function createData(_id, date, todo) {
   return {
-    id,
+    _id,
     date,
     todo: todo,
   };
 }
 
-const handleDeleteRow = () => {
-  console.log("Menghapus baris");
-};
-
 function Row(props) {
-  const { row, index } = props;
+  const { row, handleDeleteRow, handleAddTodo, setTodos } = props;
   const [open, setOpen] = React.useState(false);
-  const [todos, setTodos] = React.useState(row.todo);
 
-  const labelId = `enhanced-table-checkbox-${index}`;
-
-  const handleCheckboxChange = (todoIndex) => {
-    setTodos((prevTodos) => {
-      const updatedTodos = [...prevTodos];
-      updatedTodos[todoIndex].done = !updatedTodos[todoIndex].done;
-      return updatedTodos;
-    });
+  const handleCheckboxChange = async (
+    todoId,
+    dailyRecordId,
+    currentDoneStatus
+  ) => {
+    try {
+      const response = await axios.put(`/api/todos/${todoId}`, {
+        done: !currentDoneStatus,
+      });
+      if (response.status === 200) {
+        setTodos((prevTodos) =>
+          prevTodos.map((record) =>
+            record._id === dailyRecordId
+              ? {
+                  ...record,
+                  todo: record.todo.map((todo) =>
+                    todo._id === todoId
+                      ? { ...todo, done: !currentDoneStatus }
+                      : todo
+                  ),
+                }
+              : record
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating todo status:", error);
+    }
   };
 
   return (
@@ -67,7 +81,7 @@ function Row(props) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" id={labelId} scope="row" padding="none">
+        <TableCell component="th" scope="row" padding="none">
           {row.date.toLocaleDateString("id-ID", {
             day: "2-digit",
             month: "2-digit",
@@ -100,7 +114,13 @@ function Row(props) {
                           icon={<RadioButtonUncheckedIcon />}
                           checkedIcon={<RadioButtonCheckedIcon />}
                           checked={todoRow.done}
-                          onChange={() => handleCheckboxChange(todoIndex)}
+                          onChange={() =>
+                            handleCheckboxChange(
+                              todoRow._id,
+                              row._id,
+                              todoRow.done
+                            )
+                          }
                         />
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -108,11 +128,7 @@ function Row(props) {
                       </TableCell>
                       <TableCell>
                         {todoRow.due
-                          ? todoRow.due.toLocaleDateString("id-ID", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            })
+                          ? new Date(todoRow.due).toLocaleDateString("en-GB")
                           : "-"}
                       </TableCell>
                       <TableCell>
@@ -126,7 +142,7 @@ function Row(props) {
                         <IconButton
                           aria-label="delete row"
                           size="small"
-                          onClick={handleDeleteRow}
+                          onClick={() => handleDeleteRow(todoRow._id)}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -135,7 +151,7 @@ function Row(props) {
                   ))}
                   <TableRow>
                     <TableCell colSpan={5}>
-                      <TodoModal row={row} />
+                      <TodoModal row={row} handleAddTodo={handleAddTodo} />
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -234,18 +250,12 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function TodoTable({ selectedMonth, selectedYear }) {
+export default function TodoTable({ todos, setTodos }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
 
-  const rows = data
-    .filter((item) => {
-      const month = item.date.getMonth();
-      const year = item.date.getFullYear();
-      return month === selectedMonth && year === selectedYear;
-    })
-    .map((item, index) => createData(index + 1, item.date, item.todo));
+  const rows = todos.map((item) => createData(item._id, item.date, item.todo));
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -255,6 +265,38 @@ export default function TodoTable({ selectedMonth, selectedYear }) {
 
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
+  };
+
+  const handleAddTodo = (newTodo) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((record) =>
+        record._id === newTodo.dailyRecordId
+          ? { ...record, todo: [...record.todo, newTodo] }
+          : record
+      )
+    );
+  };
+
+  const handleDeleteRow = async (rowId) => {
+    try {
+      const response = await axios.delete(`/api/todos/${rowId}`);
+      if (response.status === 200) {
+        console.log("Todo deleted successfully:", response.data);
+
+        setTodos((prevTodos) =>
+          prevTodos
+            .map((record) => ({
+              ...record,
+              todo: record.todo.filter((todo) => todo._id !== rowId),
+            }))
+            .filter((record) => record.todo.length > 0 || record._id !== rowId)
+        );
+      } else {
+        console.error("Failed to delete todo:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
   };
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -281,8 +323,16 @@ export default function TodoTable({ selectedMonth, selectedYear }) {
               onRequestSort={handleRequestSort}
             />
             <TableBody>
-              {visibleRows.map((row, index) => {
-                return <Row key={row.date} row={row} index={index} />;
+              {visibleRows.map((row) => {
+                return (
+                  <Row
+                    key={row._id}
+                    row={row}
+                    handleDeleteRow={handleDeleteRow}
+                    handleAddTodo={handleAddTodo}
+                    setTodos={setTodos}
+                  />
+                );
               })}
               {/* {emptyRows > 0 && (
                 <TableRow

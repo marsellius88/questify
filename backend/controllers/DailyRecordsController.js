@@ -6,7 +6,13 @@ const DailyRecord = require("../models/DailyRecords");
 exports.createDailyRecord = async (req, res) => {
   try {
     const { monthlyRecordId, date, expenseIds, todoIds, journalId } = req.body;
-    const dailyRecord = new DailyRecord({ monthlyRecordId, date, expenseIds, todoIds, journalId });
+    const dailyRecord = new DailyRecord({
+      monthlyRecordId,
+      date,
+      expenseIds,
+      todoIds,
+      journalId,
+    });
     await dailyRecord.save();
     res.status(201).json(dailyRecord);
   } catch (error) {
@@ -28,13 +34,31 @@ exports.getDailyRecords = async (req, res) => {
   }
 };
 
+// Get a single daily record by date
+exports.getDailyRecordByDate = async (req, res) => {
+  try {
+    const { date } = req.params;
+    const dailyRecord = await DailyRecord.findOne({ date: new Date(date) })
+      .populate("monthlyRecordId")
+      .populate("expenseIds")
+      .populate("todoIds")
+      .populate("journalId");
+
+    if (!dailyRecord)
+      return res.status(404).json({ message: "Daily record not found" });
+    res.status(200).json(dailyRecord);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Get a single daily record by monthlyRecordId
 exports.getDailyRecordByMonthlyRecordId = async (req, res) => {
   try {
     const dailyRecords = await DailyRecord.find({
       monthlyRecordId: req.params.monthlyRecordId,
     }).populate("monthlyRecordId");
-    
+
     res.status(200).json(dailyRecords);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -49,7 +73,8 @@ exports.getDailyRecordById = async (req, res) => {
       .populate("expenseIds")
       .populate("todoIds")
       .populate("journalId");
-    if (!dailyRecord) return res.status(404).json({ message: "Daily record not found" });
+    if (!dailyRecord)
+      return res.status(404).json({ message: "Daily record not found" });
     res.status(200).json(dailyRecord);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -65,7 +90,8 @@ exports.updateDailyRecord = async (req, res) => {
       { monthlyRecordId, date, expenseIds, todoIds, journalId },
       { new: true }
     );
-    if (!dailyRecord) return res.status(404).json({ message: "Daily record not found" });
+    if (!dailyRecord)
+      return res.status(404).json({ message: "Daily record not found" });
     res.status(200).json(dailyRecord);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -76,7 +102,8 @@ exports.updateDailyRecord = async (req, res) => {
 exports.deleteDailyRecord = async (req, res) => {
   try {
     const dailyRecord = await DailyRecord.findByIdAndDelete(req.params.id);
-    if (!dailyRecord) return res.status(404).json({ message: "Daily record not found" });
+    if (!dailyRecord)
+      return res.status(404).json({ message: "Daily record not found" });
     res.status(200).json({ message: "Daily record deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

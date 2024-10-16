@@ -1,13 +1,31 @@
 // TodoController.js
 
+const DailyRecords = require("../models/DailyRecords");
 const Todo = require("../models/Todo");
 
 // Create a new todo
 exports.createTodo = async (req, res) => {
   try {
+    const dailyRecord = await DailyRecords.findById(req.body.dailyRecordId);
+    if (!dailyRecord) {
+      return res.status(404).json({ message: "Daily record not found" });
+    }
+
     const { dailyRecordId, title, due, note, priority, done } = req.body;
-    const todo = new Todo({ dailyRecordId, title, due, note, priority, done });
-    await todo.save();
+    const todo = new Todo({
+      dailyRecordId,
+      title,
+      due,
+      note,
+      priority,
+      done,
+    });
+
+    const savedTodo = await todo.save();
+    const todoId = savedTodo._id;
+    dailyRecord.todoIds.push(todoId);
+    await dailyRecord.save();
+
     res.status(201).json(todo);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -56,6 +74,9 @@ exports.deleteTodo = async (req, res) => {
   try {
     const todo = await Todo.findByIdAndDelete(req.params.id);
     if (!todo) return res.status(404).json({ message: "Todo not found" });
+    await DailyRecords.findByIdAndUpdate(todo.dailyRecordId, {
+      $pull: { todoIds: todo._id },
+    });
     res.status(200).json({ message: "Todo deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

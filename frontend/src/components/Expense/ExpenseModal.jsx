@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -10,11 +11,12 @@ import InputAdornment from "@mui/material/InputAdornment";
 
 import SelectPayment from "./SelectPayment";
 
-export default function ExpenseModal({ row }) {
+export default function ExpenseModal({ row, handleAddExpense }) {
   const [open, setOpen] = React.useState(false);
   const [payment, setPayment] = React.useState("");
   const [price, setPrice] = React.useState(0);
   const [amount, setAmount] = React.useState(1);
+  const dailyRecordId = row._id;
 
   const handlePaymentChange = (event) => {
     setPayment(event.target.value);
@@ -41,6 +43,26 @@ export default function ExpenseModal({ row }) {
 
   const totalPrice = price * amount;
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = {
+      dailyRecordId,
+      name: event.target.name.value,
+      platform: event.target.platform.value,
+      payment,
+      price,
+      amount,
+    };
+    try {
+      const response = await axios.post("/api/expenses", formData);
+      console.log("Expense added successfully:", response.data);
+      handleAddExpense(response.data);
+      handleClose();
+    } catch (error) {
+      console.error("Error adding expense:", error);
+    }
+  };
+
   return (
     <React.Fragment>
       <Button onClick={handleClickOpen}>Add Expense</Button>
@@ -49,16 +71,7 @@ export default function ExpenseModal({ row }) {
         onClose={handleClose}
         PaperProps={{
           component: "form",
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            formData.append("payment", payment);
-            // formData.append("sleepDuration", sleepDuration);
-            // formData.append("mood", mood);
-            const formJson = Object.fromEntries(formData.entries());
-            console.log(formJson);
-            handleClose();
-          },
+          onSubmit: handleSubmit,
         }}
       >
         <DialogTitle>{`${row.date.toLocaleDateString("en-GB", {
@@ -81,6 +94,7 @@ export default function ExpenseModal({ row }) {
             type="text"
             fullWidth
             variant="standard"
+            required
           />
           <TextField
             margin="dense"
@@ -90,6 +104,7 @@ export default function ExpenseModal({ row }) {
             type="text"
             fullWidth
             variant="standard"
+            required
           />
           <SelectPayment
             selectedValue={payment}
@@ -102,6 +117,7 @@ export default function ExpenseModal({ row }) {
             label="Price"
             type="number"
             fullWidth
+            required
             slotProps={{
               input: {
                 startAdornment: (
@@ -120,6 +136,7 @@ export default function ExpenseModal({ row }) {
             label="Amount"
             type="number"
             fullWidth
+            required
             variant="standard"
             value={amount}
             onChange={handleAmountChange}

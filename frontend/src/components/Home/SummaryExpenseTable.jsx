@@ -9,16 +9,12 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
-import { data } from "../../Data";
-
-export default function SummaryExpenseTable({ selectedDate }) {
-  const rows = data
-    .filter((entry) => dayjs(entry.date).isSame(selectedDate, "day"))
-    .flatMap((entry) => entry.expense);
+export default function SummaryExpenseTable({ selectedDate, expenses }) {
+  const rows = expenses;
 
   return (
     <>
-      {rows.length > 0 ? (
+      {rows?.length > 0 ? (
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
@@ -52,7 +48,7 @@ export default function SummaryExpenseTable({ selectedDate }) {
                   <TableCell component="th" scope="row">
                     {row.payment}
                   </TableCell>
-                  <TableCell align="right">{row.price}</TableCell>
+                  <TableCell align="right">Rp {row.price.toLocaleString("id-ID")}</TableCell>
                   <TableCell align="right">{row.amount}</TableCell>
                   <TableCell align="right">
                     Rp {(row.amount * row.price).toLocaleString("id-ID")}

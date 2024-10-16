@@ -21,17 +21,18 @@ function SelectPayment({ selectedValue, setSelectedValue }) {
         value={selectedValue}
         onChange={setSelectedValue}
         label="Payment"
+        required
         sx={{
           height: 48,
         }}
       >
-        <MenuItem value="cash">Cash</MenuItem>
-        <MenuItem value="bca">BCA</MenuItem>
-        <MenuItem value="gopay">Gopay</MenuItem>
-        <MenuItem value="shopeepay">ShopeePay</MenuItem>
-        <MenuItem value="ovo">OVO</MenuItem>
-        <MenuItem value="dana">Dana</MenuItem>
-        <MenuItem value="lainnya">Lainnya</MenuItem>
+        <MenuItem value="Cash">Cash</MenuItem>
+        <MenuItem value="BCA">BCA</MenuItem>
+        <MenuItem value="Gopay">Gopay</MenuItem>
+        <MenuItem value="ShopeePay">ShopeePay</MenuItem>
+        <MenuItem value="OVO">OVO</MenuItem>
+        <MenuItem value="Dana">Dana</MenuItem>
+        <MenuItem value="Lainnya">Lainnya</MenuItem>
       </Select>
     </FormControl>
   );

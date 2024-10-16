@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -23,30 +24,22 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import ExpenseModal from "./ExpenseModal";
 
-import { data } from "../../Data";
-
-function createData(id, date, expense) {
+function createData(_id, date, expense) {
   const dailyTotal = expense.reduce(
     (total, item) => total + item.price * item.amount,
     0
   );
   return {
-    id,
+    _id,
     date,
     dailyTotal,
     expense: expense,
   };
 }
 
-const handleDeleteRow = () => {
-  console.log("Menghapus baris");
-};
-
 function Row(props) {
-  const { row, index } = props;
+  const { row, handleDeleteRow, handleAddExpense } = props;
   const [open, setOpen] = React.useState(false);
-
-  const labelId = `enhanced-table-checkbox-${index}`;
 
   return (
     <React.Fragment>
@@ -60,7 +53,7 @@ function Row(props) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" id={labelId} scope="row" padding="none">
+        <TableCell component="th" scope="row" padding="none">
           {row.date.toLocaleDateString("id-ID", {
             day: "2-digit",
             month: "2-digit",
@@ -117,7 +110,7 @@ function Row(props) {
                         <IconButton
                           aria-label="delete row"
                           size="small"
-                          onClick={handleDeleteRow}
+                          onClick={() => handleDeleteRow(expenseRow._id)}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -126,7 +119,10 @@ function Row(props) {
                   ))}
                   <TableRow>
                     <TableCell colSpan={7}>
-                      <ExpenseModal row={row} />
+                      <ExpenseModal
+                        row={row}
+                        handleAddExpense={handleAddExpense}
+                      />
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -212,19 +208,17 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function ExpenseTable({ selectedMonth, selectedYear, monthlyData }) {
+export default function ExpenseTable({ expenses, setExpenses }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
 
-  const rows = data
-    .filter((item) => {
-      const month = item.date.getMonth();
-      const year = item.date.getFullYear();
-      // return month === 9 && year === 2024;
-      return month === selectedMonth && year === selectedYear;
-    })
-    .map((item, index) => createData(index + 1, item.date, item.expense));
+  const rows = expenses.map((item) =>
+    createData(item._id, item.date, item.expense)
+  );
+
+  // console.log("expenses", expenses)
+  // console.log("rows", rows)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -234,6 +228,42 @@ export default function ExpenseTable({ selectedMonth, selectedYear, monthlyData 
 
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
+  };
+
+  const handleAddExpense = (newExpense) => {
+    setExpenses((prevExpenses) =>
+      prevExpenses.map((record) =>
+        record._id === newExpense.dailyRecordId
+          ? { ...record, expense: [...record.expense, newExpense] }
+          : record
+      )
+    );
+  };
+
+  const handleDeleteRow = async (rowId) => {
+    try {
+      const response = await axios.delete(`/api/expenses/${rowId}`);
+      if (response.status === 200) {
+        console.log("Expense deleted successfully:", response.data);
+
+        setExpenses((prevExpenses) =>
+          prevExpenses
+            .map((record) => ({
+              ...record,
+              expense: record.expense.filter(
+                (expense) => expense._id !== rowId
+              ),
+            }))
+            .filter(
+              (record) => record.expense.length > 0 || record._id !== rowId
+            )
+        );
+      } else {
+        console.error("Failed to delete expense:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
   };
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -260,9 +290,24 @@ export default function ExpenseTable({ selectedMonth, selectedYear, monthlyData 
               onRequestSort={handleRequestSort}
             />
             <TableBody>
-              {visibleRows.map((row, index) => {
-                return <Row key={row.date} row={row} index={index} />;
-              })}
+              {visibleRows.map((row) => (
+                <Row
+                  key={row._id}
+                  row={row}
+                  handleDeleteRow={handleDeleteRow}
+                  handleAddExpense={handleAddExpense}
+                />
+              ))}
+              {/* {visibleRows.map((row, index) => {
+                return (
+                  <Row
+                    key={row._id}
+                    row={row}
+                    index={index}
+                    handleDeleteRow={handleDeleteRow}
+                  />
+                );
+              })} */}
               {/* {emptyRows > 0 && (
                 <TableRow
                   style={{

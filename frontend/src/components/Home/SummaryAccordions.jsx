@@ -45,7 +45,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: "1px solid rgba(0, 0, 0, .125)",
 }));
 
-export default function SummaryAccordions({ selectedDate }) {
+export default function SummaryAccordions({ selectedDate, dailyRecord }) {
   const [expanded, setExpanded] = React.useState("panel1");
 
   const handleChange = (panel) => (event, newExpanded) => {
@@ -62,7 +62,10 @@ export default function SummaryAccordions({ selectedDate }) {
           <Typography>Expense</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <SummaryExpenseTable selectedDate={selectedDate} />
+          <SummaryExpenseTable
+            selectedDate={selectedDate}
+            expenses={dailyRecord?.expenseIds}
+          />
         </AccordionDetails>
       </Accordion>
       <Accordion
@@ -73,7 +76,10 @@ export default function SummaryAccordions({ selectedDate }) {
           <Typography>Todo</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <SummaryTodoTable selectedDate={selectedDate} />
+          <SummaryTodoTable
+            selectedDate={selectedDate}
+            todos={dailyRecord?.todoIds}
+          />
         </AccordionDetails>
       </Accordion>
       <Accordion

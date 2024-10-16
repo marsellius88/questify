@@ -10,19 +10,15 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
-import { data } from "../../Data";
-
-export default function SummaryTodoTable({ selectedDate }) {
-  const rows = data
-    .filter((entry) => dayjs(entry.date).isSame(selectedDate, "day"))
-    .flatMap((entry) => entry.todo);
+export default function SummaryTodoTable({ selectedDate, todos }) {
+  const rows = todos;
 
   return (
     <>
-      {rows.length > 0 ? (
+      {rows?.length > 0 ? (
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
@@ -40,18 +36,18 @@ export default function SummaryTodoTable({ selectedDate }) {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell>
-                    {row.done ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />}
+                    {row.done ? (
+                      <CheckCircleIcon sx={{ color: "green" }} />
+                    ) : (
+                      <CancelIcon sx={{ color: "red" }} />
+                    )}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {row.title}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {row.due
-                      ? row.due.toLocaleDateString("id-ID", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
+                      ? new Date(row.due).toLocaleDateString("en-GB")
                       : "-"}
                   </TableCell>
                   <TableCell component="th" scope="row">
