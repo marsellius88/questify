@@ -1,10 +1,16 @@
 // JournalEntryController.js
 
+const DailyRecords = require("../models/DailyRecords");
 const JournalEntry = require("../models/JournalEntry");
 
 // Create a new journal entry
 exports.createJournalEntry = async (req, res) => {
   try {
+    const dailyRecord = await DailyRecords.findById(req.body.dailyRecordId);
+    if (!dailyRecord) {
+      return res.status(404).json({ message: "Daily record not found" });
+    }
+
     const { dailyRecordId, grateful, highlights, mood, sleepDuration, thoughts, waterIntake } = req.body;
     const journalEntry = new JournalEntry({
       dailyRecordId,
@@ -15,7 +21,12 @@ exports.createJournalEntry = async (req, res) => {
       thoughts,
       waterIntake
     });
-    await journalEntry.save();
+
+    const savedJournalEntry = await journalEntry.save();
+    const journalEntryId = savedJournalEntry._id;
+    dailyRecord.journalId = journalEntryId;
+    await dailyRecord.save();
+
     res.status(201).json(journalEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -64,6 +75,9 @@ exports.deleteJournalEntry = async (req, res) => {
   try {
     const journalEntry = await JournalEntry.findByIdAndDelete(req.params.id);
     if (!journalEntry) return res.status(404).json({ message: "Journal entry not found" });
+    await DailyRecords.findByIdAndUpdate(journalEntry.dailyRecordId, {
+      $pull: { journalId: journalEntry._id },
+    });
     res.status(200).json({ message: "Journal entry deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

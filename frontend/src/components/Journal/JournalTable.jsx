@@ -22,9 +22,7 @@ import TodoProgress from "./TodoProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import JournalModal from "./JournalModal";
 
-import { data } from "../../Data";
-
-function createData(id, date, expense, todo, journal) {
+function createData(_id, date, expense, todo, journal) {
   const dailyTotal = expense.reduce(
     (total, item) => total + item.price * item.amount,
     0
@@ -36,7 +34,7 @@ function createData(id, date, expense, todo, journal) {
     totalTodos > 0 ? (completedTodos * 100) / totalTodos : 0;
   // Menentukan icon mood
   let moodIcon;
-  switch (journal.mood) {
+  switch (journal?.mood) {
     case "happy":
       moodIcon = "😊";
       break;
@@ -50,7 +48,7 @@ function createData(id, date, expense, todo, journal) {
       moodIcon = "-";
   }
   return {
-    id,
+    _id,
     date,
     dailyTotal,
     todoPercentage,
@@ -61,14 +59,12 @@ function createData(id, date, expense, todo, journal) {
 }
 
 function Row(props) {
-  const { row, index } = props;
-
-  const labelId = `enhanced-table-checkbox-${index}`;
+  const { row } = props;
 
   return (
     <React.Fragment>
       <TableRow hover tabIndex={-1} key={row.id}>
-        <TableCell component="th" id={labelId} scope="row">
+        <TableCell component="th" scope="row">
           {row.date.toLocaleDateString("id-ID", {
             day: "2-digit",
             month: "2-digit",
@@ -175,20 +171,24 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function JournalTable({ selectedMonth, selectedYear }) {
+export default function JournalTable({ selectedMonth, selectedYear, data }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
 
-  const rows = data
-    .filter((item) => {
-      const month = item.date.getMonth();
-      const year = item.date.getFullYear();
-      return month === selectedMonth && year === selectedYear;
-    })
-    .map((item, index) =>
-      createData(index + 1, item.date, item.expense, item.todo, item.journal)
-    );
+  const rows = data.map((item) =>
+    createData(item._id, item.date, item.expense, item.todo, item.journal)
+  );
+
+  // const rows = data
+  //   .filter((item) => {
+  //     const month = item.date.getMonth();
+  //     const year = item.date.getFullYear();
+  //     return month === selectedMonth && year === selectedYear;
+  //   })
+  //   .map((item, index) =>
+  //     createData(index + 1, item.date, item.expense, item.todo, item.journal)
+  //   );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -224,8 +224,8 @@ export default function JournalTable({ selectedMonth, selectedYear }) {
               onRequestSort={handleRequestSort}
             />
             <TableBody>
-              {visibleRows.map((row, index) => {
-                return <Row key={row.date} row={row} index={index} />;
+              {visibleRows.map((row) => {
+                return <Row key={row.date} row={row} />;
               })}
               {/* {emptyRows > 0 && (
                 <TableRow

@@ -21,8 +21,10 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { visuallyHidden } from "@mui/utils";
 import Checkbox from "@mui/material/Checkbox";
 
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import TodoModal from "./TodoModal";
@@ -39,7 +41,7 @@ function Row(props) {
   const { row, handleDeleteRow, handleAddTodo, setTodos } = props;
   const [open, setOpen] = React.useState(false);
 
-  const handleCheckboxChange = async (
+  const handleDoneCheckboxChange = async (
     todoId,
     dailyRecordId,
     currentDoneStatus
@@ -57,6 +59,36 @@ function Row(props) {
                   todo: record.todo.map((todo) =>
                     todo._id === todoId
                       ? { ...todo, done: !currentDoneStatus }
+                      : todo
+                  ),
+                }
+              : record
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating todo status:", error);
+    }
+  };
+
+  const handlePriorityCheckboxChange = async (
+    todoId,
+    dailyRecordId,
+    currentPriorityStatus
+  ) => {
+    try {
+      const response = await axios.put(`/api/todos/${todoId}`, {
+        priority: !currentPriorityStatus,
+      });
+      if (response.status === 200) {
+        setTodos((prevTodos) =>
+          prevTodos.map((record) =>
+            record._id === dailyRecordId
+              ? {
+                  ...record,
+                  todo: record.todo.map((todo) =>
+                    todo._id === todoId
+                      ? { ...todo, priority: !currentPriorityStatus }
                       : todo
                   ),
                 }
@@ -100,55 +132,80 @@ function Row(props) {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ width: "5%" }}></TableCell>
-                    <TableCell sx={{ width: "30%" }}>Title</TableCell>
+                    <TableCell sx={{ width: "5%" }}></TableCell>
+                    <TableCell sx={{ width: "25%" }}>Title</TableCell>
                     <TableCell sx={{ width: "20%" }}>Due Date</TableCell>
                     <TableCell sx={{ width: "40%" }}>Note</TableCell>
                     <TableCell sx={{ width: "5%" }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.todo.map((todoRow, todoIndex) => (
-                    <TableRow key={todoRow.title}>
-                      <TableCell>
-                        <Checkbox
-                          icon={<RadioButtonUncheckedIcon />}
-                          checkedIcon={<RadioButtonCheckedIcon />}
-                          checked={todoRow.done}
-                          onChange={() =>
-                            handleCheckboxChange(
-                              todoRow._id,
-                              row._id,
-                              todoRow.done
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        {todoRow.title}
-                      </TableCell>
-                      <TableCell>
-                        {todoRow.due
-                          ? new Date(todoRow.due).toLocaleDateString("en-GB")
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        {todoRow.note
-                          ? todoRow.note.length > 20
-                            ? `${todoRow.note.substring(0, 20)}...`
-                            : todoRow.note
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          aria-label="delete row"
-                          size="small"
-                          onClick={() => handleDeleteRow(todoRow._id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {row.todo
+                    .sort(
+                      (a, b) => (b.priority === true) - (a.priority === true)
+                    )
+                    .map((todoRow) => (
+                      <TableRow key={todoRow.title}>
+                        <TableCell>
+                          <Checkbox
+                            icon={
+                              <CheckBoxOutlineBlankIcon
+                                sx={{ color: "grey" }}
+                              />
+                            }
+                            checkedIcon={
+                              <CheckBoxIcon sx={{ color: "green" }} />
+                            }
+                            checked={todoRow.done}
+                            onChange={() =>
+                              handleDoneCheckboxChange(
+                                todoRow._id,
+                                row._id,
+                                todoRow.done
+                              )
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Checkbox
+                            icon={<StarBorderIcon />}
+                            checkedIcon={<StarIcon sx={{ color: "#ffc300" }} />}
+                            checked={todoRow.priority}
+                            onChange={() =>
+                              handlePriorityCheckboxChange(
+                                todoRow._id,
+                                row._id,
+                                todoRow.priority
+                              )
+                            }
+                          />
+                        </TableCell>
+                        <TableCell component="th" scope="row">
+                          {todoRow.title}
+                        </TableCell>
+                        <TableCell>
+                          {todoRow.due
+                            ? new Date(todoRow.due).toLocaleDateString("en-GB")
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {todoRow.note
+                            ? todoRow.note.length > 20
+                              ? `${todoRow.note.substring(0, 20)}...`
+                              : todoRow.note
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            aria-label="delete row"
+                            size="small"
+                            onClick={() => handleDeleteRow(todoRow._id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   <TableRow>
                     <TableCell colSpan={5}>
                       <TodoModal row={row} handleAddTodo={handleAddTodo} />

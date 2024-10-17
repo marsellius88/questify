@@ -5,13 +5,13 @@ const DailyRecord = require("../models/DailyRecords");
 // Create a new daily record
 exports.createDailyRecord = async (req, res) => {
   try {
-    const { monthlyRecordId, date, expenseIds, todoIds, journalId } = req.body;
+    const { monthlyRecordId, date } = req.body;
     const dailyRecord = new DailyRecord({
       monthlyRecordId,
       date,
-      expenseIds,
-      todoIds,
-      journalId,
+      expenseIds: [],
+      todoIds: [],
+      journalId: null,
     });
     await dailyRecord.save();
     res.status(201).json(dailyRecord);

@@ -24,7 +24,7 @@ export default function Todo() {
       } else {
         console.log("Monthly record ID not found in response.");
         setMonthlyRecordId("");
-        setExpenses([]);
+        setTodos([]);
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
@@ -33,7 +33,7 @@ export default function Todo() {
         console.error("Error fetching monthly record ID:", error);
       }
       setMonthlyRecordId("");
-      setExpenses([]);
+      setTodos([]);
     }
   };
 
