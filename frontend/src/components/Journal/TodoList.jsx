@@ -51,11 +51,7 @@ export default function TodoList({ row }) {
                 <Typography variant="body2" color="text.secondary">
                   Due:{" "}
                   {item.due
-                    ? item.due.toLocaleDateString("id-ID", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })
+                    ? new Date(item.due).toLocaleDateString("en-GB")
                     : "No due date"}
                 </Typography>
                 {/* <Typography variant="body2" color="text.secondary">

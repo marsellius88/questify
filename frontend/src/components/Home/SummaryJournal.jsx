@@ -6,10 +6,10 @@ import Grid from "@mui/material/Grid2";
 
 import { data } from "../../Data";
 
-export default function SummaryJournal({ selectedDate }) {
-  const journalEntry =
-    data.find((entry) => dayjs(entry.date).isSame(selectedDate, "day"))
-      ?.journal || null;
+export default function SummaryJournal({ journalEntry }) {
+  // const journalEntry =
+  //   data.find((entry) => dayjs(entry.date).isSame(selectedDate, "day"))
+  //     ?.journal || null;
 
   let moodIcon;
   switch (journalEntry?.mood) {

@@ -62,10 +62,7 @@ export default function SummaryAccordions({ selectedDate, dailyRecord }) {
           <Typography>Expense</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <SummaryExpenseTable
-            selectedDate={selectedDate}
-            expenses={dailyRecord?.expenseIds}
-          />
+          <SummaryExpenseTable expenses={dailyRecord?.expenseIds} />
         </AccordionDetails>
       </Accordion>
       <Accordion
@@ -76,10 +73,7 @@ export default function SummaryAccordions({ selectedDate, dailyRecord }) {
           <Typography>Todo</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <SummaryTodoTable
-            selectedDate={selectedDate}
-            todos={dailyRecord?.todoIds}
-          />
+          <SummaryTodoTable todos={dailyRecord?.todoIds} />
         </AccordionDetails>
       </Accordion>
       <Accordion
@@ -90,7 +84,7 @@ export default function SummaryAccordions({ selectedDate, dailyRecord }) {
           <Typography>Journal</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <SummaryJournal selectedDate={selectedDate} />
+          <SummaryJournal journalEntry={dailyRecord?.journalId} />
         </AccordionDetails>
       </Accordion>
     </div>

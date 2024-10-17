@@ -9,7 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
-export default function SummaryExpenseTable({ selectedDate, expenses }) {
+export default function SummaryExpenseTable({ expenses }) {
   const rows = expenses;
 
   return (
@@ -48,7 +48,9 @@ export default function SummaryExpenseTable({ selectedDate, expenses }) {
                   <TableCell component="th" scope="row">
                     {row.payment}
                   </TableCell>
-                  <TableCell align="right">Rp {row.price.toLocaleString("id-ID")}</TableCell>
+                  <TableCell align="right">
+                    Rp {row.price.toLocaleString("id-ID")}
+                  </TableCell>
                   <TableCell align="right">{row.amount}</TableCell>
                   <TableCell align="right">
                     Rp {(row.amount * row.price).toLocaleString("id-ID")}

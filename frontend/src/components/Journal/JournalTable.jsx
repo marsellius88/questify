@@ -59,7 +59,7 @@ function createData(_id, date, expense, todo, journal) {
 }
 
 function Row(props) {
-  const { row } = props;
+  const { row, handleAddUpdateJournalEntry } = props;
 
   return (
     <React.Fragment>
@@ -79,7 +79,10 @@ function Row(props) {
         </TableCell>
         <TableCell>{row.mood}</TableCell>
         <TableCell align="right">
-          <JournalModal row={row} />
+          <JournalModal
+            row={row}
+            handleAddUpdateJournalEntry={handleAddUpdateJournalEntry}
+          />
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -171,7 +174,7 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function JournalTable({ selectedMonth, selectedYear, data }) {
+export default function JournalTable({ data, setData }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
@@ -179,16 +182,6 @@ export default function JournalTable({ selectedMonth, selectedYear, data }) {
   const rows = data.map((item) =>
     createData(item._id, item.date, item.expense, item.todo, item.journal)
   );
-
-  // const rows = data
-  //   .filter((item) => {
-  //     const month = item.date.getMonth();
-  //     const year = item.date.getFullYear();
-  //     return month === selectedMonth && year === selectedYear;
-  //   })
-  //   .map((item, index) =>
-  //     createData(index + 1, item.date, item.expense, item.todo, item.journal)
-  //   );
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -199,6 +192,17 @@ export default function JournalTable({ selectedMonth, selectedYear, data }) {
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
   };
+
+  const handleAddUpdateJournalEntry = (journalEntry) => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item._id === journalEntry.dailyRecordId
+          ? { ...item, journal: journalEntry }
+          : item
+      )
+    );
+  };
+  
 
   // Avoid a layout jump when reaching the last page with empty rows.
   // const emptyRows =
@@ -225,7 +229,13 @@ export default function JournalTable({ selectedMonth, selectedYear, data }) {
             />
             <TableBody>
               {visibleRows.map((row) => {
-                return <Row key={row.date} row={row} />;
+                return (
+                  <Row
+                    key={row.date}
+                    row={row}
+                    handleAddUpdateJournalEntry={handleAddUpdateJournalEntry}
+                  />
+                );
               })}
               {/* {emptyRows > 0 && (
                 <TableRow

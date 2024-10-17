@@ -13,7 +13,7 @@ import Checkbox from "@mui/material/Checkbox";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import StarIcon from "@mui/icons-material/Star";
 
-export default function SummaryTodoTable({ selectedDate, todos }) {
+export default function SummaryTodoTable({ todos }) {
   const rows = todos;
 
   return (

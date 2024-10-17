@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -12,22 +13,30 @@ import Box from "@mui/material/Box";
 
 import WaterSleepInput from "./WaterSleepInput";
 import SelectMood from "./SelectMood";
-
 import EditIcon from "@mui/icons-material/Edit";
 import TodoProgress from "./TodoProgress";
 import TodoList from "./TodoList";
 
-export default function JournalModal({ row }) {
+export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
   const [open, setOpen] = React.useState(false);
   const [mood, setMood] = React.useState("");
   const [waterIntake, setWaterIntake] = React.useState(0);
   const [sleepDuration, setSleepDuration] = React.useState(0);
+  const [grateful, setGrateful] = React.useState("");
+  const [highlights, setHighlights] = React.useState("");
+  const [thoughts, setThoughts] = React.useState("");
+  const dailyRecordId = row._id;
 
-  // const [mood, setMood] = React.useState(row.journal.mood);
-  // const [waterIntake, setWaterIntake] = React.useState(row.journal.waterIntake);
-  // const [sleepDuration, setSleepDuration] = React.useState(
-  //   row.journal.sleepDuration
-  // );
+  React.useEffect(() => {
+    if (row && open) {
+      setMood(row.journal?.mood || "");
+      setWaterIntake(row.journal?.waterIntake || 0);
+      setSleepDuration(row.journal?.sleepDuration || 0);
+      setGrateful(row.journal?.grateful || "");
+      setHighlights(row.journal?.highlights || "");
+      setThoughts(row.journal?.thoughts || "");
+    }
+  }, [row, open]);
 
   const handleChangeMood = (event) => {
     setMood(event.target.value);
@@ -39,10 +48,47 @@ export default function JournalModal({ row }) {
 
   const handleClose = () => {
     setOpen(false);
+    setMood("");
     setWaterIntake(0);
     setSleepDuration(0);
-    setMood("");
+    setGrateful("");
+    setHighlights("");
+    setThoughts("");
   };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+  
+    const formData = {
+      dailyRecordId,
+      grateful: grateful,
+      highlights: highlights,
+      mood: mood,
+      sleepDuration: sleepDuration,
+      waterIntake: waterIntake,
+      thoughts: thoughts,
+    };
+  
+    try {
+      let response;
+      if (row.journal) {
+        // Update existing journal entry
+        response = await axios.put(`/api/journal-entries/${row.journal._id}`, formData);
+        console.log("Journal entry updated successfully:", response.data);
+      } else {
+        // Create a new journal entry
+        response = await axios.post("/api/journal-entries", formData);
+        console.log("Journal entry created successfully:", response.data);
+      }
+  
+      // Update the table data
+      handleAddUpdateJournalEntry(response.data);
+      handleClose();
+    } catch (error) {
+      console.error("Error submitting journal entry:", error);
+    }
+  };
+  
 
   return (
     <React.Fragment>
@@ -54,16 +100,7 @@ export default function JournalModal({ row }) {
         onClose={handleClose}
         PaperProps={{
           component: "form",
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            formData.append("waterIntake", waterIntake);
-            formData.append("sleepDuration", sleepDuration);
-            formData.append("mood", mood);
-            const formJson = Object.fromEntries(formData.entries());
-            console.log(formJson);
-            handleClose();
-          },
+          onSubmit: handleSubmit,
         }}
       >
         <DialogTitle>
@@ -95,6 +132,8 @@ export default function JournalModal({ row }) {
                 fullWidth
                 variant="standard"
                 multiline
+                value={grateful}
+                onChange={(e) => setGrateful(e.target.value)}
               />
               <TextField
                 margin="dense"
@@ -105,6 +144,8 @@ export default function JournalModal({ row }) {
                 fullWidth
                 variant="standard"
                 multiline
+                value={highlights}
+                onChange={(e) => setHighlights(e.target.value)}
               />
             </Grid>
             <Grid size={6}>
@@ -133,6 +174,8 @@ export default function JournalModal({ row }) {
             fullWidth
             variant="standard"
             multiline
+            value={thoughts}
+            onChange={(e) => setThoughts(e.target.value)}
           />
         </DialogContent>
         <DialogActions>

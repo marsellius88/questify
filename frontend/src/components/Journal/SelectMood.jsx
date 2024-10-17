@@ -21,6 +21,7 @@ function SelectMood({ selectedValue, setSelectedValue }) {
         id="select-mood"
         value={selectedValue}
         onChange={setSelectedValue}
+        required
         label="Mood"
         sx={{
           height: 48,
