@@ -39,11 +39,7 @@ export default function SummaryTodoTable({ todos }) {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell>
-                      {row.done ? (
-                        <CheckBoxIcon sx={{ color: "green" }} />
-                      ) : (
-                        ""
-                      )}
+                      {row.done ? <CheckBoxIcon sx={{ color: "green" }} /> : ""}
                     </TableCell>
                     <TableCell>
                       {row.priority ? (
@@ -52,15 +48,36 @@ export default function SummaryTodoTable({ todos }) {
                         ""
                       )}
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        textDecoration: row.done ? "line-through" : "none",
+                        color: row.done ? "gray" : "inherit",
+                      }}
+                    >
                       {row.title}
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        textDecoration: row.done ? "line-through" : "none",
+                        color: row.done ? "gray" : "inherit",
+                      }}
+                    >
                       {row.due
                         ? new Date(row.due).toLocaleDateString("en-GB")
                         : "-"}
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{
+                        textDecoration: row.done ? "line-through" : "none",
+                        color: row.done ? "gray" : "inherit",
+                      }}
+                    >
                       {row.note
                         ? row.note.length > 30
                           ? `${row.note.substring(0, 30)}...`

@@ -28,6 +28,7 @@ import StarIcon from "@mui/icons-material/Star";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import TodoModal from "./TodoModal";
+import Feedback from "../Feedback";
 
 function createData(_id, date, todo) {
   return {
@@ -38,7 +39,7 @@ function createData(_id, date, todo) {
 }
 
 function Row(props) {
-  const { row, handleDeleteRow, handleAddTodo, setTodos } = props;
+  const { row, handleDeleteRow, handleAddTodo, setData } = props;
   const [open, setOpen] = React.useState(false);
 
   const handleDoneCheckboxChange = async (
@@ -51,8 +52,8 @@ function Row(props) {
         done: !currentDoneStatus,
       });
       if (response.status === 200) {
-        setTodos((prevTodos) =>
-          prevTodos.map((record) =>
+        setData((prevData) =>
+          prevData.map((record) =>
             record._id === dailyRecordId
               ? {
                   ...record,
@@ -81,8 +82,8 @@ function Row(props) {
         priority: !currentPriorityStatus,
       });
       if (response.status === 200) {
-        setTodos((prevTodos) =>
-          prevTodos.map((record) =>
+        setData((prevData) =>
+          prevData.map((record) =>
             record._id === dailyRecordId
               ? {
                   ...record,
@@ -180,15 +181,38 @@ function Row(props) {
                             }
                           />
                         </TableCell>
-                        <TableCell component="th" scope="row">
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            textDecoration: todoRow.done
+                              ? "line-through"
+                              : "none",
+                            color: todoRow.done ? "gray" : "inherit",
+                          }}
+                        >
                           {todoRow.title}
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          sx={{
+                            textDecoration: todoRow.done
+                              ? "line-through"
+                              : "none",
+                            color: todoRow.done ? "gray" : "inherit",
+                          }}
+                        >
                           {todoRow.due
                             ? new Date(todoRow.due).toLocaleDateString("en-GB")
                             : "-"}
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          sx={{
+                            textDecoration: todoRow.done
+                              ? "line-through"
+                              : "none",
+                            color: todoRow.done ? "gray" : "inherit",
+                          }}
+                        >
                           {todoRow.note
                             ? todoRow.note.length > 20
                               ? `${todoRow.note.substring(0, 20)}...`
@@ -307,12 +331,15 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function TodoTable({ todos, setTodos }) {
+export default function TodoTable({ data, setData }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState("success");
 
-  const rows = todos.map((item) => createData(item._id, item.date, item.todo));
+  const rows = data.map((item) => createData(item._id, item.date, item.todo));
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -325,11 +352,11 @@ export default function TodoTable({ todos, setTodos }) {
   };
 
   const handleAddTodo = (newTodo) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((record) =>
-        record._id === newTodo.dailyRecordId
-          ? { ...record, todo: [...record.todo, newTodo] }
-          : record
+    setData((prevData) =>
+      prevData.map((item) =>
+        item._id === newTodo.dailyRecordId
+          ? { ...item, todo: [...item.todo, newTodo] }
+          : item
       )
     );
   };
@@ -340,19 +367,28 @@ export default function TodoTable({ todos, setTodos }) {
       if (response.status === 200) {
         console.log("Todo deleted successfully:", response.data);
 
-        setTodos((prevTodos) =>
-          prevTodos
-            .map((record) => ({
-              ...record,
-              todo: record.todo.filter((todo) => todo._id !== rowId),
+        setData((prevData) =>
+          prevData
+            .map((item) => ({
+              ...item,
+              todo: item.todo.filter((todo) => todo._id !== rowId),
             }))
-            .filter((record) => record.todo.length > 0 || record._id !== rowId)
+            .filter((item) => item.todo.length > 0 || item._id !== rowId)
         );
+        setFeedbackMessage("Todo deleted successfully!");
+        setFeedbackSeverity("success");
+        setFeedbackOpen(true);
       } else {
         console.error("Failed to delete todo:", response.data);
+        setFeedbackMessage("Failed to delete todo.");
+        setFeedbackSeverity("error");
+        setFeedbackOpen(true);
       }
     } catch (error) {
       console.error("Error deleting todo:", error);
+      setFeedbackMessage("Error occurred while deleting todo.");
+      setFeedbackSeverity("error");
+      setFeedbackOpen(true);
     }
   };
 
@@ -365,33 +401,34 @@ export default function TodoTable({ todos, setTodos }) {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
-          <Table
-            stickyHeader
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "medium" : "small"}
-          >
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <TableBody>
-              {visibleRows.map((row) => {
-                return (
-                  <Row
-                    key={row._id}
-                    row={row}
-                    handleDeleteRow={handleDeleteRow}
-                    handleAddTodo={handleAddTodo}
-                    setTodos={setTodos}
-                  />
-                );
-              })}
-              {/* {emptyRows > 0 && (
+    <React.Fragment>
+      <Box sx={{ width: "100%" }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
+          <TableContainer>
+            <Table
+              stickyHeader
+              sx={{ minWidth: 750 }}
+              aria-labelledby="tableTitle"
+              size={dense ? "medium" : "small"}
+            >
+              <EnhancedTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+              />
+              <TableBody>
+                {visibleRows.map((row) => {
+                  return (
+                    <Row
+                      key={row._id}
+                      row={row}
+                      handleDeleteRow={handleDeleteRow}
+                      handleAddTodo={handleAddTodo}
+                      setData={setData}
+                    />
+                  );
+                })}
+                {/* {emptyRows > 0 && (
                 <TableRow
                   style={{
                     height: (dense ? 33 : 53) * emptyRows,
@@ -400,14 +437,21 @@ export default function TodoTable({ todos, setTodos }) {
                   <TableCell colSpan={6} />
                 </TableRow>
               )} */}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Wide padding"
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+        <FormControlLabel
+          control={<Switch checked={dense} onChange={handleChangeDense} />}
+          label="Wide padding"
+        />
+      </Box>
+      <Feedback
+        open={feedbackOpen}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+        handleClose={() => setFeedbackOpen(false)}
       />
-    </Box>
+    </React.Fragment>
   );
 }

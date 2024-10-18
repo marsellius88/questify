@@ -10,12 +10,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import InputAdornment from "@mui/material/InputAdornment";
 
 import SelectPayment from "./SelectPayment";
+import Feedback from "../Feedback";
 
 export default function ExpenseModal({ row, handleAddExpense }) {
   const [open, setOpen] = React.useState(false);
   const [payment, setPayment] = React.useState("");
   const [price, setPrice] = React.useState(0);
   const [amount, setAmount] = React.useState(1);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState("success");
+
   const dailyRecordId = row._id;
 
   const handlePaymentChange = (event) => {
@@ -58,8 +63,14 @@ export default function ExpenseModal({ row, handleAddExpense }) {
       console.log("Expense added successfully:", response.data);
       handleAddExpense(response.data);
       handleClose();
+      setFeedbackMessage("Expense added successfully!");
+      setFeedbackSeverity("success");
+      setFeedbackOpen(true);
     } catch (error) {
       console.error("Error adding expense:", error);
+      setFeedbackMessage("Failed to add expense. Please try again.");
+      setFeedbackSeverity("error");
+      setFeedbackOpen(true);
     }
   };
 
@@ -150,6 +161,12 @@ export default function ExpenseModal({ row, handleAddExpense }) {
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
+      <Feedback
+        open={feedbackOpen}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+        handleClose={() => setFeedbackOpen(false)}
+      />
     </React.Fragment>
   );
 }

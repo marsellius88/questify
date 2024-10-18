@@ -8,11 +8,16 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import DateInput from "./DateInput";
-import dayjs from "dayjs";
+
+import Feedback from "../Feedback";
 
 export default function TodoModal({ row, handleAddTodo }) {
   const [open, setOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(null);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState("success");
+
   const dailyRecordId = row._id;
 
   const handleClickOpen = () => {
@@ -30,17 +35,24 @@ export default function TodoModal({ row, handleAddTodo }) {
     const formData = {
       dailyRecordId,
       title: event.target.title.value,
+      note: event.target.note.value,
       due: dueDate,
       priority: false,
-      done: false
+      done: false,
     };
     try {
       const response = await axios.post("/api/todos", formData);
       console.log("Todo added successfully:", response.data);
       handleAddTodo(response.data);
       handleClose();
+      setFeedbackMessage("Todo added successfully!");
+      setFeedbackSeverity("success");
+      setFeedbackOpen(true);
     } catch (error) {
       console.error("Error adding todo:", error);
+      setFeedbackMessage("Failed to add todo. Please try again.");
+      setFeedbackSeverity("error");
+      setFeedbackOpen(true);
     }
   };
 
@@ -97,6 +109,12 @@ export default function TodoModal({ row, handleAddTodo }) {
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
+      <Feedback
+        open={feedbackOpen}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+        handleClose={() => setFeedbackOpen(false)}
+      />
     </React.Fragment>
   );
 }

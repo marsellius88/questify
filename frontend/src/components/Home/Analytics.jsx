@@ -71,66 +71,6 @@ export default function Analytics() {
           <SixMonthsPaymentChart />
         </Paper>
       </Grid>
-      {/* <Grid size={12}>
-        <Typography
-          variant="h2"
-          component="h2"
-          sx={{ marginTop: 5, marginBottom: 0.5 }}
-        >
-          Expense
-        </Typography>
-        <Typography variant="body1" component="p" sx={{ marginBottom: 2 }}>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque,
-          voluptatem aperiam odio cum cumque, quaerat reiciendis impedit eos
-          neque officiis sapiente ratione, doloribus sunt. Pariatur, commodi
-          laudantium beatae deleniti nihil quam aut doloribus cumque mollitia in
-          vero expedita perspiciatis excepturi.
-        </Typography>
-      </Grid> */}
-      {/* <Grid size={6}>
-        <Paper elevation={3} sx={{ padding: 3 }}>
-          <Typography
-            variant="h2"
-            component="h2"
-            color="#333"
-            sx={{ marginBottom: 1 }}
-          >
-            Total Expense
-          </Typography>
-          <Typography
-            variant="body1"
-            component="p"
-            color="#888"
-            sx={{ marginBottom: 1 }}
-          >
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque,
-            voluptatem aperiam odio cum cumque.
-          </Typography>
-          <OneMonthExpenseChart />
-        </Paper>
-      </Grid>
-      <Grid size={6}>
-        <Paper elevation={3} sx={{ padding: 3 }}>
-          <Typography
-            variant="h2"
-            component="h2"
-            color="#333"
-            sx={{ marginBottom: 1 }}
-          >
-            Total Expense
-          </Typography>
-          <Typography
-            variant="body1"
-            component="p"
-            color="#888"
-            sx={{ marginBottom: 1 }}
-          >
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque,
-            voluptatem aperiam odio cum cumque.
-          </Typography>
-          <OneMonthExpenseChart />
-        </Paper>
-      </Grid> */}
     </Grid>
   );
 }

@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
@@ -15,13 +13,6 @@ export default function Expense({
   data,
   setData
 }) {
-  const [expenses, setExpenses] = useState([]);
-
-  useEffect(() => {
-    if (data) {
-      setExpenses(data);
-    }
-  }, [data]);
 
   return (
     <Box>
@@ -43,7 +34,7 @@ export default function Expense({
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
         />
-        <ExpenseTable expenses={expenses} setExpenses={setExpenses} />
+        <ExpenseTable data={data} setData={setData} />
       </Box>
     </Box>
   );

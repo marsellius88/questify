@@ -1,39 +1,36 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import Box from "@mui/material/Box";
+import axios from "axios";
 
-const desktopOS = [
-  {
-    label: "Windows",
-    value: 72.72,
-  },
-  {
-    label: "OS X",
-    value: 16.38,
-  },
-  {
-    label: "Linux",
-    value: 3.83,
-  },
-  {
-    label: "Chrome OS",
-    value: 2.42,
-  },
-  {
-    label: "Other",
-    value: 4.65,
-  },
-];
+const valueFormatter = (item) =>
+  item.value != null ? `Rp ${item.value.toLocaleString("id-ID")}` : "Rp 0";
 
 export default function SixMonthsPaymentChart() {
+  const [paymentMethods, setPaymentMethods] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("/api/expenses/payment/distribution");
+      setPaymentMethods(response.data);
+    } catch (error) {
+      console.error("Error fetching payment distribution data", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Box sx={{ height: 300, width: "100%" }}>
       <PieChart
         series={[
           {
-            data: desktopOS,
+            data: paymentMethods,
             highlightScope: { fade: "global", highlight: "item" },
             faded: { innerRadius: 30, additionalRadius: -30, color: "gray" },
+            valueFormatter,
           },
         ]}
       />

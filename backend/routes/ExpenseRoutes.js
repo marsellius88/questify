@@ -13,10 +13,16 @@ router.get("/", ExpenseController.getExpenses);
 // Get a single expense by ID
 router.get("/:id", ExpenseController.getExpenseById);
 
+// Get six month total expenses
+router.get("/monthly/total", ExpenseController.getMonthlyExpenses);
+
 // Update an expense by ID
 router.put("/:id", ExpenseController.updateExpense);
 
 // Delete an expense by ID
 router.delete("/:id", ExpenseController.deleteExpense);
+
+// Get payment distribution
+router.get("/payment/distribution", ExpenseController.getPaymentDistribution);
 
 module.exports = router;

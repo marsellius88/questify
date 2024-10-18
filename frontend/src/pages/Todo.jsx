@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
@@ -15,13 +13,6 @@ export default function Todo({
   data,
   setData
 }) {
-  const [todos, setTodos] = useState([]);
-
-  useEffect(() => {
-    if (data) {
-      setTodos(data);
-    }
-  }, [data]);
 
   return (
     <Box>
@@ -43,7 +34,7 @@ export default function Todo({
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
         />
-        <TodoTable todos={todos} setTodos={setTodos} />
+        <TodoTable data={data} setData={setData} />
       </Box>
     </Box>
   );

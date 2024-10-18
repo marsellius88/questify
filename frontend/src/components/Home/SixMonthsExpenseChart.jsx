@@ -1,27 +1,49 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { SparkLineChart } from "@mui/x-charts/SparkLineChart";
+import axios from "axios";
+
+const settings = {
+  valueFormatter: (value) =>
+    value != null ? `Rp ${value.toLocaleString("id-ID")}` : "Rp 0",
+};
 
 export default function SixMonthsExpenseChart() {
+  const [expenseData, setExpenseData] = useState({
+    totals: [],
+    months: [],
+  });
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("/api/expenses/monthly/total");
+      setExpenseData({
+        totals: response.data.totals,
+        months: response.data.months,
+      });
+    } catch (error) {
+      console.error("Error fetching expense data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Box sx={{ height: 300, width: "100%" }}>
       <SparkLineChart
         plotType="bar"
-        data={[3000000, 2500000, 3200000, 1800000, 1600000, 3100000]}
+        data={expenseData.totals}
         showTooltip
         showHighlight
         xAxis={{
           scaleType: "band",
-          data: [
-            new Date(2024, 0, 1),
-            new Date(2024, 1, 1),
-            new Date(2024, 2, 1),
-            new Date(2024, 3, 1),
-            new Date(2024, 4, 1),
-            new Date(2024, 5, 1),
-          ],
-          valueFormatter: (value) => value.toLocaleString("en-US", { month: "long" }),
+          data: expenseData.months.map((month) => new Date(month)),
+          valueFormatter: (value) =>
+            value.toLocaleString("en-US", { month: "long", year: "numeric" }),
         }}
+        {...settings}
       />
     </Box>
   );

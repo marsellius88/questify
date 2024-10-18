@@ -23,6 +23,7 @@ import { visuallyHidden } from "@mui/utils";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import ExpenseModal from "./ExpenseModal";
+import Feedback from "../Feedback";
 
 function createData(_id, date, expense) {
   const dailyTotal = expense.reduce(
@@ -208,17 +209,17 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export default function ExpenseTable({ expenses, setExpenses }) {
+export default function ExpenseTable({ data, setData }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [dense, setDense] = React.useState(false);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState("success");
 
-  const rows = expenses.map((item) =>
+  const rows = data.map((item) =>
     createData(item._id, item.date, item.expense)
   );
-
-  // console.log("expenses", expenses)
-  // console.log("rows", rows)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -231,8 +232,8 @@ export default function ExpenseTable({ expenses, setExpenses }) {
   };
 
   const handleAddExpense = (newExpense) => {
-    setExpenses((prevExpenses) =>
-      prevExpenses.map((record) =>
+    setData((prevData) =>
+      prevData.map((record) =>
         record._id === newExpense.dailyRecordId
           ? { ...record, expense: [...record.expense, newExpense] }
           : record
@@ -246,8 +247,8 @@ export default function ExpenseTable({ expenses, setExpenses }) {
       if (response.status === 200) {
         console.log("Expense deleted successfully:", response.data);
 
-        setExpenses((prevExpenses) =>
-          prevExpenses
+        setData((prevData) =>
+          prevData
             .map((record) => ({
               ...record,
               expense: record.expense.filter(
@@ -258,11 +259,20 @@ export default function ExpenseTable({ expenses, setExpenses }) {
               (record) => record.expense.length > 0 || record._id !== rowId
             )
         );
+        setFeedbackMessage("Expense deleted successfully!");
+        setFeedbackSeverity("success");
+        setFeedbackOpen(true);
       } else {
         console.error("Failed to delete expense:", response.data);
+        setFeedbackMessage("Failed to delete expense.");
+        setFeedbackSeverity("error");
+        setFeedbackOpen(true);
       }
     } catch (error) {
       console.error("Error deleting expense:", error);
+      setFeedbackMessage("Error occurred while deleting expense.");
+      setFeedbackSeverity("error");
+      setFeedbackOpen(true);
     }
   };
 
@@ -275,30 +285,31 @@ export default function ExpenseTable({ expenses, setExpenses }) {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
-          <Table
-            stickyHeader
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "medium" : "small"}
-          >
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-            />
-            <TableBody>
-              {visibleRows.map((row) => (
-                <Row
-                  key={row._id}
-                  row={row}
-                  handleDeleteRow={handleDeleteRow}
-                  handleAddExpense={handleAddExpense}
-                />
-              ))}
-              {/* {visibleRows.map((row, index) => {
+    <React.Fragment>
+      <Box sx={{ width: "100%" }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
+          <TableContainer>
+            <Table
+              stickyHeader
+              sx={{ minWidth: 750 }}
+              aria-labelledby="tableTitle"
+              size={dense ? "medium" : "small"}
+            >
+              <EnhancedTableHead
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+              />
+              <TableBody>
+                {visibleRows.map((row) => (
+                  <Row
+                    key={row._id}
+                    row={row}
+                    handleDeleteRow={handleDeleteRow}
+                    handleAddExpense={handleAddExpense}
+                  />
+                ))}
+                {/* {visibleRows.map((row, index) => {
                 return (
                   <Row
                     key={row._id}
@@ -308,7 +319,7 @@ export default function ExpenseTable({ expenses, setExpenses }) {
                   />
                 );
               })} */}
-              {/* {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                 <TableRow
                   style={{
                     height: (dense ? 33 : 53) * emptyRows,
@@ -317,14 +328,21 @@ export default function ExpenseTable({ expenses, setExpenses }) {
                   <TableCell colSpan={6} />
                 </TableRow>
               )} */}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Wide padding"
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+        <FormControlLabel
+          control={<Switch checked={dense} onChange={handleChangeDense} />}
+          label="Wide padding"
+        />
+      </Box>
+      <Feedback
+        open={feedbackOpen}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+        handleClose={() => setFeedbackOpen(false)}
       />
-    </Box>
+    </React.Fragment>
   );
 }

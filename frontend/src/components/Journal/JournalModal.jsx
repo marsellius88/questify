@@ -16,6 +16,7 @@ import SelectMood from "./SelectMood";
 import EditIcon from "@mui/icons-material/Edit";
 import TodoProgress from "./TodoProgress";
 import TodoList from "./TodoList";
+import Feedback from "../Feedback";
 
 export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
   const [open, setOpen] = React.useState(false);
@@ -25,6 +26,10 @@ export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
   const [grateful, setGrateful] = React.useState("");
   const [highlights, setHighlights] = React.useState("");
   const [thoughts, setThoughts] = React.useState("");
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
+  const [feedbackMessage, setFeedbackMessage] = React.useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = React.useState("success");
+
   const dailyRecordId = row._id;
 
   React.useEffect(() => {
@@ -58,7 +63,7 @@ export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     const formData = {
       dailyRecordId,
       grateful: grateful,
@@ -68,27 +73,38 @@ export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
       waterIntake: waterIntake,
       thoughts: thoughts,
     };
-  
+
     try {
       let response;
       if (row.journal) {
         // Update existing journal entry
-        response = await axios.put(`/api/journal-entries/${row.journal._id}`, formData);
+        response = await axios.put(
+          `/api/journal-entries/${row.journal._id}`,
+          formData
+        );
         console.log("Journal entry updated successfully:", response.data);
+        setFeedbackMessage("Journal updated successfully!");
+        setFeedbackSeverity("success");
+        setFeedbackOpen(true);
       } else {
         // Create a new journal entry
         response = await axios.post("/api/journal-entries", formData);
         console.log("Journal entry created successfully:", response.data);
+        setFeedbackMessage("Journal added successfully!");
+        setFeedbackSeverity("success");
+        setFeedbackOpen(true);
       }
-  
+
       // Update the table data
       handleAddUpdateJournalEntry(response.data);
       handleClose();
     } catch (error) {
       console.error("Error submitting journal entry:", error);
+      setFeedbackMessage("Failed to add or update journal. Please try again.");
+      setFeedbackSeverity("error");
+      setFeedbackOpen(true);
     }
   };
-  
 
   return (
     <React.Fragment>
@@ -183,6 +199,12 @@ export default function JournalModal({ row, handleAddUpdateJournalEntry }) {
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
+      <Feedback
+        open={feedbackOpen}
+        message={feedbackMessage}
+        severity={feedbackSeverity}
+        handleClose={() => setFeedbackOpen(false)}
+      />
     </React.Fragment>
   );
 }
