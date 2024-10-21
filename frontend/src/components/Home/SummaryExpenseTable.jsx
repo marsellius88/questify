@@ -8,9 +8,22 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import ExpenseModal from "../Expense/ExpenseModal";
 
-export default function SummaryExpenseTable({ expenses }) {
-  const rows = expenses;
+export default function SummaryExpenseTable({ dailyRecord, setData }) {
+  const rows = dailyRecord?.expense;
+
+  // console.log(dailyRecord)
+
+  const handleAddExpense = (newExpense) => {
+    setData((prevData) =>
+      prevData.map((record) =>
+        record._id === newExpense.dailyRecordId
+          ? { ...record, expense: [...record.expense, newExpense] }
+          : record
+      )
+    );
+  };
 
   return (
     <>
@@ -57,13 +70,32 @@ export default function SummaryExpenseTable({ expenses }) {
                   </TableCell>
                 </TableRow>
               ))}
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <ExpenseModal
+                    row={dailyRecord}
+                    handleAddExpense={handleAddExpense}
+                  />
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
       ) : (
-        <Typography variant="body1" align="center">
-          Tidak ada data
-        </Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <ExpenseModal
+                    row={dailyRecord}
+                    handleAddExpense={handleAddExpense}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </>
   );

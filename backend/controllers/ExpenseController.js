@@ -137,78 +137,6 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
-// Get payment distribution
-// exports.getPaymentDistribution = async (req, res) => {
-//   try {
-//     // Get the current date and calculate six months back
-//     const currentDate = new Date();
-//     const sixMonthsAgo = new Date();
-//     sixMonthsAgo.setMonth(currentDate.getMonth() - 6);
-
-//     // Fetch expenses from the last six months
-//     const expenses = await Expense.find({
-//       createdAt: { $gte: sixMonthsAgo, $lte: currentDate },
-//     });
-
-//     // Initialize total amounts for each payment method
-//     const paymentMethods = {
-//       Cash: 0,
-//       BCA: 0,
-//       Gopay: 0,
-//       ShopeePay: 0,
-//       OVO: 0,
-//       Dana: 0,
-//       Lainnya: 0,
-//     };
-
-//     // Calculate total expenses for each payment method
-//     let totalExpenses = 0; // This will hold the overall total amount spent
-
-//     expenses.forEach((expense) => {
-//       const amountSpent = expense.price * expense.amount; // Total cost for this expense
-//       totalExpenses += amountSpent; // Add to total expenses
-
-//       // Add to the corresponding payment method total
-//       switch (expense.payment) {
-//         case "Cash":
-//           paymentMethods.Cash += amountSpent;
-//           break;
-//         case "BCA":
-//           paymentMethods.BCA += amountSpent;
-//           break;
-//         case "Gopay":
-//           paymentMethods.Gopay += amountSpent;
-//           break;
-//         case "ShopeePay":
-//           paymentMethods.ShopeePay += amountSpent;
-//           break;
-//         case "OVO":
-//           paymentMethods.OVO += amountSpent;
-//           break;
-//         case "Dana":
-//           paymentMethods.Dana += amountSpent;
-//           break;
-//         default:
-//           paymentMethods.Lainnya += amountSpent;
-//           break;
-//       }
-//     });
-
-//     // Calculate the percentage for each payment method based on total expenses
-//     const paymentDistribution = Object.keys(paymentMethods).map((method) => {
-//       const percentage = totalExpenses > 0 
-//         ? ((paymentMethods[method] / totalExpenses) * 100).toFixed(2) 
-//         : 0; // Prevent division by zero
-//       return { label: method, value: parseFloat(percentage) };
-//     });
-
-//     res.status(200).json(paymentDistribution);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-
 exports.getPaymentDistribution = async (req, res) => {
   try {
     // Get the current date and calculate six months back
@@ -232,9 +160,16 @@ exports.getPaymentDistribution = async (req, res) => {
       Lainnya: 0,
     };
 
+    // Create a Set to track unique months with data
+    const monthsWithData = new Set();
+
     // Calculate total expenses for each payment method
     expenses.forEach((expense) => {
       const amountSpent = expense.price * expense.amount; // Total cost for this expense
+
+      // Add the month of the expense to the Set
+      const expenseMonth = expense.createdAt.getMonth();
+      monthsWithData.add(expenseMonth);
 
       // Add to the corresponding payment method total
       switch (expense.payment) {
@@ -262,9 +197,14 @@ exports.getPaymentDistribution = async (req, res) => {
       }
     });
 
-    // Prepare the response with total expense amounts for each payment method
+    // The number of months with data
+    const months = monthsWithData.size;
+
+    // Calculate average expenses for each payment method based on available months
     const paymentDistribution = Object.keys(paymentMethods).map((method) => {
-      return { label: method, value: paymentMethods[method] }; // Return total expense for each method
+      const totalExpense = paymentMethods[method];
+      const averageExpense = months > 0 ? totalExpense / months : 0; // Avoid division by 0
+      return { label: method, value: averageExpense }; // Return average expense for each method
     });
 
     res.status(200).json(paymentDistribution);
@@ -272,5 +212,71 @@ exports.getPaymentDistribution = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
+// exports.getPaymentDistribution = async (req, res) => {
+//   try {
+//     // Get the current date and calculate six months back
+//     const currentDate = new Date();
+//     const sixMonthsAgo = new Date();
+//     sixMonthsAgo.setMonth(currentDate.getMonth() - 6);
+
+//     // Fetch expenses from the last six months
+//     const expenses = await Expense.find({
+//       createdAt: { $gte: sixMonthsAgo, $lte: currentDate },
+//     });
+
+//     // Initialize total amounts for each payment method
+//     const paymentMethods = {
+//       Cash: 0,
+//       BCA: 0,
+//       Gopay: 0,
+//       ShopeePay: 0,
+//       OVO: 0,
+//       Dana: 0,
+//       Lainnya: 0,
+//     };
+
+//     // Calculate total expenses for each payment method
+//     expenses.forEach((expense) => {
+//       const amountSpent = expense.price * expense.amount; // Total cost for this expense
+
+//       // Add to the corresponding payment method total
+//       switch (expense.payment) {
+//         case "Cash":
+//           paymentMethods.Cash += amountSpent;
+//           break;
+//         case "BCA":
+//           paymentMethods.BCA += amountSpent;
+//           break;
+//         case "Gopay":
+//           paymentMethods.Gopay += amountSpent;
+//           break;
+//         case "ShopeePay":
+//           paymentMethods.ShopeePay += amountSpent;
+//           break;
+//         case "OVO":
+//           paymentMethods.OVO += amountSpent;
+//           break;
+//         case "Dana":
+//           paymentMethods.Dana += amountSpent;
+//           break;
+//         default:
+//           paymentMethods.Lainnya += amountSpent;
+//           break;
+//       }
+//     });
+
+//     // Prepare the response with total expense amounts for each payment method
+//     const paymentDistribution = Object.keys(paymentMethods).map((method) => {
+//       return { label: method, value: paymentMethods[method] }; // Return total expense for each method
+//     });
+
+//     res.status(200).json(paymentDistribution);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 

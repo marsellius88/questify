@@ -3,39 +3,24 @@ import dayjs from "dayjs";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import Calendar from "../components/Home/Calendar";
 import ResetTodayButton from "../components/ResetTodayButton";
 import SummaryAccordions from "../components/Home/SummaryAccordions";
 import Analytics from "../components/Home/Analytics";
 
-export default function Home() {
+export default function Home({ data, setData }) {
   const [selectedDate, setSelectedDate] = useState(dayjs(new Date()));
   const [dailyRecord, setDailyRecord] = useState(null);
 
-  const fetchDailyRecordByDate = async (date) => {
-    try {
-      const formattedDate = date.format("YYYY-MM-DD");
-      const response = await fetch(`/api/daily-records/date/${formattedDate}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDailyRecord(data);
-      } else {
-        setDailyRecord(null);
-      }
-    } catch (error) {
-      console.error("Error fetching daily record:", error);
-      setDailyRecord(null);
-    }
-  };
-
   useEffect(() => {
-    fetchDailyRecordByDate(selectedDate);
-  }, [selectedDate]);
-
-  useEffect(() => {
-    fetchDailyRecordByDate(dayjs(new Date()));
-  }, []);
+    const selectedDateString = selectedDate.format("YYYY-MM-DD");
+    const matchingRecord = data.find(
+      (record) => dayjs(record.date).format("YYYY-MM-DD") === selectedDateString
+    );
+    setDailyRecord(matchingRecord || null);
+  }, [selectedDate, data]);
 
   return (
     <Box>
@@ -75,10 +60,21 @@ export default function Home() {
             {selectedDate.format("dddd, D MMMM YYYY")}
           </Typography>
           <Box>
-            <SummaryAccordions
-              selectedDate={selectedDate}
-              dailyRecord={dailyRecord}
-            />
+            {dailyRecord ? (
+              <SummaryAccordions
+                dailyRecord={dailyRecord}
+                setData={setData}
+              />
+            ) : (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+              >
+                <CircularProgress />
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

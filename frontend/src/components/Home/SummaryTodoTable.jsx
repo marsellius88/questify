@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import dayjs from "dayjs";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -11,10 +12,84 @@ import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
 
-export default function SummaryTodoTable({ todos }) {
-  const rows = todos;
+import TodoModal from "../Todo/TodoModal";
+
+export default function SummaryTodoTable({ dailyRecord, setData }) {
+  const rows = dailyRecord?.todo;
+
+  const handleDoneCheckboxChange = async (
+    todoId,
+    dailyRecordId,
+    currentDoneStatus
+  ) => {
+    try {
+      const response = await axios.put(`/api/todos/${todoId}`, {
+        done: !currentDoneStatus,
+      });
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((record) =>
+            record._id === dailyRecordId
+              ? {
+                  ...record,
+                  todo: record.todo.map((todo) =>
+                    todo._id === todoId
+                      ? { ...todo, done: !currentDoneStatus }
+                      : todo
+                  ),
+                }
+              : record
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating todo status:", error);
+    }
+  };
+
+  const handlePriorityCheckboxChange = async (
+    todoId,
+    dailyRecordId,
+    currentPriorityStatus
+  ) => {
+    try {
+      const response = await axios.put(`/api/todos/${todoId}`, {
+        priority: !currentPriorityStatus,
+      });
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((record) =>
+            record._id === dailyRecordId
+              ? {
+                  ...record,
+                  todo: record.todo.map((todo) =>
+                    todo._id === todoId
+                      ? { ...todo, priority: !currentPriorityStatus }
+                      : todo
+                  ),
+                }
+              : record
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating todo status:", error);
+    }
+  };
+
+  const handleAddTodo = (newTodo) => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item._id === newTodo.dailyRecordId
+          ? { ...item, todo: [...item.todo, newTodo] }
+          : item
+      )
+    );
+  };
 
   return (
     <>
@@ -39,6 +114,36 @@ export default function SummaryTodoTable({ todos }) {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell>
+                      <Checkbox
+                        icon={
+                          <CheckBoxOutlineBlankIcon sx={{ color: "grey" }} />
+                        }
+                        checkedIcon={<CheckBoxIcon sx={{ color: "green" }} />}
+                        checked={row.done}
+                        onChange={() =>
+                          handleDoneCheckboxChange(
+                            row._id,
+                            dailyRecord._id,
+                            row.done
+                          )
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        icon={<StarBorderIcon />}
+                        checkedIcon={<StarIcon sx={{ color: "#ffc300" }} />}
+                        checked={row.priority}
+                        onChange={() =>
+                          handlePriorityCheckboxChange(
+                            row._id,
+                            dailyRecord._id,
+                            row.priority
+                          )
+                        }
+                      />
+                    </TableCell>
+                    {/* <TableCell>
                       {row.done ? <CheckBoxIcon sx={{ color: "green" }} /> : ""}
                     </TableCell>
                     <TableCell>
@@ -47,7 +152,7 @@ export default function SummaryTodoTable({ todos }) {
                       ) : (
                         ""
                       )}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell
                       component="th"
                       scope="row"
@@ -86,13 +191,26 @@ export default function SummaryTodoTable({ todos }) {
                     </TableCell>
                   </TableRow>
                 ))}
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <TodoModal row={dailyRecord} handleAddTodo={handleAddTodo} />
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
       ) : (
-        <Typography variant="body1" align="center">
-          Tidak ada data
-        </Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <TodoModal row={dailyRecord} handleAddTodo={handleAddTodo} />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </>
   );

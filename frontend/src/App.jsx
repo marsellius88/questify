@@ -133,7 +133,7 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<RootLayout />}>
-        <Route index element={<Home />} />
+        <Route index element={<Home data={data} setData={setData} />} />
         <Route
           path="/expense"
           element={
