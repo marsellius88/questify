@@ -1,5 +1,5 @@
 import * as React from "react";
-import dayjs from "dayjs";
+import axios from "axios";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,13 +7,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import ExpenseModal from "../Expense/ExpenseModal";
 
 export default function SummaryExpenseTable({ dailyRecord, setData }) {
   const rows = dailyRecord?.expense;
-
-  // console.log(dailyRecord)
 
   const handleAddExpense = (newExpense) => {
     setData((prevData) =>
@@ -23,6 +24,32 @@ export default function SummaryExpenseTable({ dailyRecord, setData }) {
           : record
       )
     );
+  };
+
+  const handleDeleteRow = async (rowId) => {
+    try {
+      const response = await axios.delete(`/api/expenses/${rowId}`);
+      if (response.status === 200) {
+        console.log("Expense deleted successfully:", response.data);
+
+        setData((prevData) =>
+          prevData
+            .map((record) => ({
+              ...record,
+              expense: record.expense.filter(
+                (expense) => expense._id !== rowId
+              ),
+            }))
+            .filter(
+              (record) => record.expense.length > 0 || record._id !== rowId
+            )
+        );
+      } else {
+        console.error("Failed to delete expense:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
   };
 
   return (
@@ -41,9 +68,10 @@ export default function SummaryExpenseTable({ dailyRecord, setData }) {
                 <TableCell sx={{ width: "10%" }} align="right">
                   Amount
                 </TableCell>
-                <TableCell sx={{ width: "20%" }} align="right">
+                <TableCell sx={{ width: "15%" }} align="right">
                   Total Price
                 </TableCell>
+                <TableCell sx={{ width: "5%" }}></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -67,6 +95,15 @@ export default function SummaryExpenseTable({ dailyRecord, setData }) {
                   <TableCell align="right">{row.amount}</TableCell>
                   <TableCell align="right">
                     Rp {(row.amount * row.price).toLocaleString("id-ID")}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      aria-label="delete row"
+                      size="small"
+                      onClick={() => handleDeleteRow(row._id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

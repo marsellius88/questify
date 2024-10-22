@@ -1,6 +1,5 @@
 import * as React from "react";
 import axios from "axios";
-import dayjs from "dayjs";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,13 +7,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
+import IconButton from "@mui/material/IconButton";
 
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import TodoModal from "../Todo/TodoModal";
 
@@ -91,6 +91,28 @@ export default function SummaryTodoTable({ dailyRecord, setData }) {
     );
   };
 
+  const handleDeleteRow = async (rowId) => {
+    try {
+      const response = await axios.delete(`/api/todos/${rowId}`);
+      if (response.status === 200) {
+        console.log("Todo deleted successfully:", response.data);
+
+        setData((prevData) =>
+          prevData
+            .map((item) => ({
+              ...item,
+              todo: item.todo.filter((todo) => todo._id !== rowId),
+            }))
+            .filter((item) => item.todo.length > 0 || item._id !== rowId)
+        );
+      } else {
+        console.error("Failed to delete todo:", response.data);
+      }
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
   return (
     <>
       {rows?.length > 0 ? (
@@ -102,7 +124,8 @@ export default function SummaryTodoTable({ dailyRecord, setData }) {
                 <TableCell sx={{ width: "5%" }}></TableCell>
                 <TableCell sx={{ width: "25%" }}>Title</TableCell>
                 <TableCell sx={{ width: "25%" }}>Due Date</TableCell>
-                <TableCell sx={{ width: "40%" }}>Note</TableCell>
+                <TableCell sx={{ width: "35%" }}>Note</TableCell>
+                <TableCell sx={{ width: "5%" }}></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -143,16 +166,6 @@ export default function SummaryTodoTable({ dailyRecord, setData }) {
                         }
                       />
                     </TableCell>
-                    {/* <TableCell>
-                      {row.done ? <CheckBoxIcon sx={{ color: "green" }} /> : ""}
-                    </TableCell>
-                    <TableCell>
-                      {row.priority ? (
-                        <StarIcon sx={{ color: "#ffc300" }} />
-                      ) : (
-                        ""
-                      )}
-                    </TableCell> */}
                     <TableCell
                       component="th"
                       scope="row"
@@ -188,6 +201,15 @@ export default function SummaryTodoTable({ dailyRecord, setData }) {
                           ? `${row.note.substring(0, 30)}...`
                           : row.note
                         : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        aria-label="delete row"
+                        size="small"
+                        onClick={() => handleDeleteRow(row._id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}

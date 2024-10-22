@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid2";
 
 import Calendar from "../components/Home/Calendar";
 import ResetTodayButton from "../components/ResetTodayButton";
@@ -27,57 +28,61 @@ export default function Home({ data, setData }) {
       <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
         Summary
       </Typography>
-      <Box display="flex">
-        <Box sx={{ marginRight: 2 }}>
-          <Calendar
-            selectedValue={selectedDate}
-            setSelectedValue={setSelectedDate}
-          />
-          <ResetTodayButton setSelectedValue={setSelectedDate} />
-        </Box>
-        <Box
-          sx={{
-            width: "100%",
-            height: "80vh",
-            overflowY: "auto",
-            "&::-webkit-scrollbar": {
-              width: "8px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#bdc1c6",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#888",
-            },
-          }}
-        >
-          <Typography
-            variant="h2"
-            component="h2"
-            sx={{ marginTop: 2, marginBottom: 2 }}
-          >
-            {selectedDate.format("dddd, D MMMM YYYY")}
-          </Typography>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
           <Box>
-            {dailyRecord ? (
-              <SummaryAccordions
-                dailyRecord={dailyRecord}
-                setData={setData}
-              />
-            ) : (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-              </Box>
-            )}
+            <Calendar
+              selectedValue={selectedDate}
+              setSelectedValue={setSelectedDate}
+            />
+            <ResetTodayButton setSelectedValue={setSelectedDate} />
           </Box>
-        </Box>
-      </Box>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6, lg: 8, xl: 9 }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "80vh",
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#bdc1c6",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                backgroundColor: "#888",
+              },
+            }}
+          >
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{ marginTop: 2, marginBottom: 2 }}
+            >
+              {selectedDate.format("dddd, D MMMM YYYY")}
+            </Typography>
+            <Box>
+              {dailyRecord ? (
+                <SummaryAccordions
+                  dailyRecord={dailyRecord}
+                  setData={setData}
+                />
+              ) : (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height="100%"
+                >
+                  <CircularProgress />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
       <Divider sx={{ marginY: 2 }} />
       <Box>
         <Typography variant="h1" component="h1" sx={{ marginY: 1 }}>
