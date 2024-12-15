@@ -20,11 +20,7 @@ export default function Expense({
         Expense
       </Typography>
       <Typography variant="body1" component="p" sx={{ marginBottom: 2.5 }}>
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque,
-        voluptatem aperiam odio cum cumque, quaerat reiciendis impedit eos neque
-        officiis sapiente ratione, doloribus sunt. Pariatur, commodi laudantium
-        beatae deleniti nihil quam aut doloribus cumque mollitia in vero
-        expedita perspiciatis excepturi.
+        Tes
       </Typography>
       <Divider />
       <Box sx={{ marginTop: 2.5 }}>
